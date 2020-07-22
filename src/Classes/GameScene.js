@@ -1,13 +1,13 @@
 class GameScene {
-    constructor(ThreeJSScene, name) {
-        this.ThreeJSScene = ThreeJSScene;
+    constructor(ThreeScene, name) {
+        this.ThreeScene = ThreeScene;
         this.Objects = [];
         this.name = name;
     }
 
     addObject(obj) {
-        this.ThreeJSScene.add(obj);
-        Objects.push(obj);
+        this.ThreeScene.add(obj);
+        this.Objects.push(obj);
     }
 
     update() {

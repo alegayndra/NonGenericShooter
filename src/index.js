@@ -1,4 +1,5 @@
-let camera, scene, renderer, controls;
+let camera, renderer, controls;
+let actualScene, gameScenes = [];
 
 let objects = [];
 
@@ -18,8 +19,7 @@ let velocity, direction;
 let floorUrl = "../images/checker_large.gif";
 let cubeUrl = "../images/wooden_crate_2.png";
 
-function initPointerLock()
-{
+function initPointerLock() {
     blocker = document.getElementById( 'blocker' );
     instructions = document.getElementById( 'instructions' );
 
@@ -39,11 +39,10 @@ function initPointerLock()
         controls.lock();
     }, false );
 
-    scene.add( controls.getObject() );
+    actualScene.addObject( controls.getObject() );
 }
 
-function onKeyDown ( event )
-{
+function onKeyDown ( event ) {
     switch ( event.keyCode ) {
 
         case 38: // up
@@ -101,8 +100,15 @@ function onKeyUp( event ) {
     }
 }
 
-function createScene(canvas) 
-{    
+function createGameScene() {
+    let scene = new THREE.Scene();
+    scene.background = new THREE.Color( 0xffffff );
+    scene.fog = new THREE.Fog( 0xffffff, 0, 550 );
+    let gameScene = new GameScene(scene, 'prueba');
+    return gameScene;
+}
+
+function createScene(canvas)  {
     renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
 
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -115,9 +121,10 @@ function createScene(canvas)
     
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
 
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0xffffff );
-    scene.fog = new THREE.Fog( 0xffffff, 0, 550 );
+    let scene = createGameScene()
+    // gameScenes.push();
+
+    // actualScene = gameScenes[0];
 
     // A light source positioned directly above the scene, with color fading from the sky color to the ground color. 
     // HemisphereLight( skyColor, groundColor, intensity )
@@ -127,7 +134,7 @@ function createScene(canvas)
 
     let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
     light.position.set( 0.5, 1, 0.75 );
-    scene.add( light );
+    scene.addObject( light );
 
     document.addEventListener( 'keydown', onKeyDown, false );
     document.addEventListener( 'keyup', onKeyUp, false );
@@ -148,7 +155,7 @@ function createScene(canvas)
     let floorGeometry = new THREE.PlaneGeometry( 2000, 2000, 100, 100 );
     let floor = new THREE.Mesh(floorGeometry, new THREE.MeshPhongMaterial({color:0xffffff, map:map, side:THREE.DoubleSide}));
     floor.rotation.x = -Math.PI / 2;
-    scene.add( floor );
+    scene.addObject( floor );
 
     // objects
 
@@ -164,9 +171,11 @@ function createScene(canvas)
         box.position.y = Math.floor( Math.random() * 20 ) * 20 + 10;
         box.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
 
-        scene.add( box );
-        objects.push( box );
+        scene.addObject( box );
     }
+
+    gameScenes.push(scene);
+    actualScene = gameScenes[0];
 
     initPointerLock();
 }
@@ -224,6 +233,6 @@ function run()
         prevTime = time;
     }
 
-    renderer.render( scene, camera );
+    renderer.render( actualScene.ThreeScene, camera );
 
 }
