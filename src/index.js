@@ -5,7 +5,7 @@ let actualScene, gameScenes = [];
 
 let raycaster;
 
-let blocker,  instructions;
+let blocker, instructions;
 
 // let moveForward = false;
 // let moveBackward = false;
@@ -148,16 +148,15 @@ function onWindowResize() {
 
 }
 
-function run() 
-{
+function run() {
     requestAnimationFrame( run );
 
     let time = performance.now();
     let delta = ( time - prevTime ) / 1000;
+    prevTime = time;
 
     actualScene.update(delta);
 
-    prevTime = time;
 
     renderer.render( actualScene.ThreeScene, actualScene.player.camera );
 
