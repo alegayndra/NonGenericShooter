@@ -10,9 +10,15 @@ class GameScene {
         this.Objects.push(obj);
     }
 
-    update() {
-        Objects.forEach(obj => {
-            obj.update();
+    update(delta) {
+        this.Objects.forEach(obj => {
+            obj.update(delta);
+        });
+    }
+
+    animate(delta) {
+        this.Objects.forEach(obj => {
+            obj.animate(delta);
         });
     }
 }
