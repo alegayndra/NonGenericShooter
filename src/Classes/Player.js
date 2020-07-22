@@ -85,7 +85,7 @@ class Player {
             this.raycaster.ray.origin.copy( this.controls.getObject().position );
             this.raycaster.ray.origin.y -= 10;
     
-            let intersections = this.raycaster.intersectObjects( scene.objsMeshes );
+            let intersections = this.raycaster.intersectObjects( scene.children );
             let onObject = intersections.length > 0;
     
             this.velocity.x -= this.velocity.x * 10.0 * delta;
