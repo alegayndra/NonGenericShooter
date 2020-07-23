@@ -5,6 +5,8 @@ class GameScene {
         this.name = name;
         this.player = null;
         this.objsMeshes = [];
+        this.enemies = [];
+        this.environment = [];
     }
 
     addObject(obj) {
@@ -19,8 +21,8 @@ class GameScene {
 
     addPlayer(player) {
         this.player = player;
-        this.ThreeScene.add(player.mesh);
-        // this.addObject(player);
+        // this.ThreeScene.add(player.mesh);
+        this.ThreeScene.add(player.camera);
     }
 
     update(delta) {

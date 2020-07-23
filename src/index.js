@@ -58,7 +58,10 @@ function createPlayer(camera, controls) {
     let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
     let box = new THREE.Mesh( boxGeometry, boxMaterial );
 
-    let player = new Player(box, camera, controls);
+    cubeMap = new THREE.TextureLoader().load('../images/lavatile.jpg');    
+    boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
+
+    let player = new Player(box, new THREE.Mesh( boxGeometry, boxMaterial ), camera, controls);
 
     return player;
 }
