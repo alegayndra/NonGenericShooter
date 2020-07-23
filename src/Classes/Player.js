@@ -33,13 +33,13 @@ class Player {
 
         // this.mesh.position.y = 2;
 
-        window.onbeforeunload = function (e) {
-            // Cancel the event
-            e.preventDefault();
+        // window.onbeforeunload = function (e) {
+        //     // Cancel the event
+        //     e.preventDefault();
         
-            // Chrome requires returnValue to be set
-            // e.returnValue = 'Really want to quit the game?';
-        };
+        //     // Chrome requires returnValue to be set
+        //     // e.returnValue = 'Really want to quit the game?';
+        // };
 
         this.controls.domElement.addEventListener( 'keydown', (event) => {
             // console.log(event.keyCode, event.key);
