@@ -13,22 +13,15 @@ class Player {
             crouching: false,
             running: false,
             mousePressed: false,
-            shooting: false
+            shooting: false,
+            mouseClicked: false 
         }
         this.lastW = 0;
-
         this.frameAnimation = 0;
 
-        // var mesh = new THREE.Mesh( new THREE.SphereGeometry( 5, 16, 8 ),  );
         this.weapon.position.x = 6;
         this.weapon.position.y = -3;
         this.weapon.position.z = -10;
-
-        // this.mesh.position.x = -6;
-        // this.mesh.position.y = -3;
-        // this.mesh.position.z = -10;
-
-        // this.controls.getObject().position.y = 4;
 
         this.camera.add(this.weapon);
         this.camera.add(this.mesh);
@@ -120,10 +113,11 @@ class Player {
         }, false );
 
         this.controls.domElement.addEventListener('mousedown', (event) => {
-            // console.log('jola');
-            if (!this.flags.shooting) {
-                this.flags.shooting = true;
-            }
+            this.flags.mouseClicked = true;
+        });
+
+        this.controls.domElement.addEventListener('mouseup', (event) => {
+            this.flags.mouseClicked = false;
         });
     }
 
@@ -169,40 +163,9 @@ class Player {
                 this.flags.canJump = true;
             }
 
-            // this.mesh.position.set(
-            //     this.camera.position.x - Math.sin(this.camera.rotation.y + Math.PI / 6) * 0.75,
-            //     this.camera.position.y - 0.5 + Math.sin(delta * 4 + this.camera.position.x + this.camera.position.z)*0.01,
-            //     this.camera.position.z + Math.cos(this.camera.rotation.y + Math.PI/6) * 0.75
-            // );
-
-            // console.log('sin', Math.sin(this.camera.rotation.y));
-            // console.log('cos', Math.cos(this.camera.rotation.y));
-            // console.log('rotation', this.camera.rotation.y);
-
-            // weapon update
-            // this.weapon.position.set(
-            //     this.camera.position.x - Math.sin(this.camera.rotation.y - Math.PI / 6) * 10,
-            //     this.camera.position.y - 0.5 + Math.sin(delta * 4 + this.camera.position.x + this.camera.position.z) * 0.01,
-            //     this.camera.position.z - Math.cos(this.camera.rotation.y - Math.PI / 6) * 10
-            // );
-
-            // this.weapon.rotation.set(
-            //     this.camera.rotation.x,
-            //     this.camera.rotation.y,
-            //     this.camera.rotation.z
-            // );
-
-            // mesh update
-            // this.mesh.position.set(
-            //     this.camera.position.x,
-            //     this.mesh.position.y,
-            //     this.camera.position.z
-            // );
-            // this.mesh.rotation.set(
-            //     this.camera.rotation.x,
-            //     this.camera.rotation.y,
-            //     this.camera.rotation.z
-            // );
+            if (this.flags.mouseClicked && !this.flags.shooting) {
+                this.flags.shooting = true;
+            }
 
             if (this.flags.shooting) {
                 this.frameAnimation += 12 * delta;
@@ -211,15 +174,8 @@ class Player {
                     this.weapon.rotation.x = 0;
                     this.frameAnimation = 0;
                     this.flags.shooting = false;
-                    // console.log('reset');
                 }
             }
-
-            // for (let i = 0; i < Math.PI * 2; i+= 0.01) {
-            //     this.weapon.rotation.x = i;
-            //     // console.log(i);
-            // }
-            // this.weapon.rotation.x = 0;
         }
 
     }
