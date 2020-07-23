@@ -52,7 +52,7 @@ function createGameScene() {
 }
 
 function createPlayer(camera, controls) {
-    let size = 4;
+    let size = 2;
     let boxGeometry = new THREE.BoxGeometry( size, size, size );
     let cubeMap = new THREE.TextureLoader().load(cubeUrl);    
     let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );

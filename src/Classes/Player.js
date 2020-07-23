@@ -14,6 +14,8 @@ class Player {
         }
         this.lastW = 0;
 
+        this.controls.getObject().position.y = 4;
+
         this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 15 );
 
         this.velocity = new THREE.Vector3();
@@ -109,38 +111,38 @@ class Player {
             // console.log("posicion rayo: ", this.raycaster.ray.origin);
     
             // collisions
-            this.raycaster.ray.origin.copy( this.controls.getObject().position );
-            this.raycaster.ray.origin.y -= 10;
+            // this.raycaster.ray.origin.copy( this.controls.getObject().position );
+            // this.raycaster.ray.origin.y -= 10;
     
-            let intersections = this.raycaster.intersectObjects( scene.children );
-            let onObject = intersections.length > 0;
+            // let intersections = this.raycaster.intersectObjects( scene.children );
+            // let onObject = intersections.length > 0;
     
-            // velocity
-            this.velocity.x -= this.velocity.x * 10.0 * delta;
-            this.velocity.z -= this.velocity.z * 10.0 * delta;
-            this.velocity.y -= 9.8 * 50.0 * delta; // 100.0 = mass
+            // // velocity
+            // this.velocity.x -= this.velocity.x * 10.0 * delta;
+            // this.velocity.z -= this.velocity.z * 10.0 * delta;
+            // this.velocity.y -= 9.8 * 50.0 * delta; // 100.0 = mass
     
-            // direction
-            this.direction.z = Number( this.flags.moveForward ) - Number( this.flags.moveBackward );
-            this.direction.x = Number( this.flags.moveRight ) - Number( this.flags.moveLeft );
+            // // direction
+            // this.direction.z = Number( this.flags.moveForward ) - Number( this.flags.moveBackward );
+            // this.direction.x = Number( this.flags.moveRight ) - Number( this.flags.moveLeft );
     
-            this.direction.normalize(); // this ensures consistent movements in all directions
-            if ( this.flags.moveForward || this.flags.moveBackward ) this.velocity.z -= this.direction.z * 400.0 * delta;
-            if ( this.flags.moveLeft || this.flags.moveRight ) this.velocity.x -= this.direction.x * 400.0 * delta;
-            if ( onObject === true ) {
-                this.velocity.y = Math.max( 0, this.velocity.y );
-                this.flags.canJump = true;
-            }
+            // this.direction.normalize(); // this ensures consistent movements in all directions
+            // if ( this.flags.moveForward || this.flags.moveBackward ) this.velocity.z -= this.direction.z * 400.0 * delta;
+            // if ( this.flags.moveLeft || this.flags.moveRight ) this.velocity.x -= this.direction.x * 400.0 * delta;
+            // if ( onObject === true ) {
+            //     this.velocity.y = Math.max( 0, this.velocity.y );
+            //     this.flags.canJump = true;
+            // }
     
-            this.controls.moveRight( - this.velocity.x * delta * ((this.flags.crouching) ? 0.5 : ((this.flags.running) ? 2 : 1)) );
-            this.controls.moveForward( - this.velocity.z * delta * ((this.flags.crouching) ? 0.5 : ((this.flags.running) ? 2 : 1)) );
-            this.controls.getObject().position.y += ( this.velocity.y * delta ); // new behavior
+            // this.controls.moveRight( - this.velocity.x * delta * ((this.flags.crouching) ? 0.5 : ((this.flags.running) ? 2 : 1)) );
+            // this.controls.moveForward( - this.velocity.z * delta * ((this.flags.crouching) ? 0.5 : ((this.flags.running) ? 2 : 1)) );
+            // this.controls.getObject().position.y += ( this.velocity.y * delta ); // new behavior
     
-            if ( this.controls.getObject().position.y < 10 ) {
-                this.velocity.y = 0;
-                this.controls.getObject().position.y = 10 - ((this.flags.crouching) ? 4 : 0);
-                this.flags.canJump = true;
-            }
+            // if ( this.controls.getObject().position.y < 10 ) {
+            //     this.velocity.y = 0;
+            //     this.controls.getObject().position.y = 10 - ((this.flags.crouching) ? 4 : 0);
+            //     this.flags.canJump = true;
+            // }
 
             // this.mesh.position.x = this.controls.getObject().position.x + 4;
             // this.mesh.position.y = this.controls.getObject().position.y + 2;
@@ -152,23 +154,35 @@ class Player {
             //     this.camera.position.z + Math.cos(this.camera.rotation.y + Math.PI/6) * 0.75
             // );
 
-            let dir = controls.getDirection(new THREE.Vector3());
+            // console.log('sin', Math.sin(this.camera.rotation.y));
+            // console.log('cos', Math.cos(this.camera.rotation.y));
+            // console.log('rotation', this.camera.rotation.y);
+
+            this.mesh.position.set(
+                this.camera.position.x - Math.sin(this.camera.rotation.y - Math.PI / 6) * 10,
+                this.camera.position.y - 0.5 + Math.sin(delta * 4 + this.camera.position.x + this.camera.position.z) * 0.01,
+                this.camera.position.z - Math.cos(this.camera.rotation.y - Math.PI / 6) * 10
+            );
+
+            console.log(this.mesh.position);
+
+            // let dir = controls.getDirection(new THREE.Vector3());
 
             // this.mesh.position.set(
             //     (this.camera.position.x - Math.sin(this.camera.rotation.y + Math.PI / 6)) * 1.5,
             //     this.camera.position.y,
             //     (this.camera.position.z + Math.cos(this.camera.rotation.y + Math.PI / 6)) * 1.5
             // );
-            // this.mesh.rotation.set(
-            //     this.camera.rotation.x,
-            //     this.camera.rotation.y - Math.PI,
-            //     this.camera.rotation.z
-            // );
+            this.mesh.rotation.set(
+                this.camera.rotation.x,
+                this.camera.rotation.y,
+                this.camera.rotation.z
+            );
 
             // this.mesh.rotation.set(
-            //     dir.y * Math.PI,
-            //     -dir.x * Math.PI,
-            //     this.mesh.rotation.z
+            //      dir.y * Math.PI / 2,
+            //     -dir.x * Math.PI / 2,
+            //     0
             // );
 
             // console.log(dir);
