@@ -86,6 +86,8 @@ function createScene(canvas)  {
     
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
 
+    camera.position.y = 100;
+
     let scene = createGameScene();
     gameScenes.push(scene);
     actualScene = gameScenes[0];
@@ -113,7 +115,7 @@ function createScene(canvas)  {
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
     map.repeat.set(8, 8);
 
-    let floorGeometry = new THREE.PlaneGeometry( 2000, 2000, 100, 100 );
+    let floorGeometry = new THREE.BoxGeometry( 100, 100, 3 );
     let floor = new THREE.Mesh(floorGeometry, new THREE.MeshPhongMaterial({color:0xffffff, map:map, side:THREE.DoubleSide}));
     floor.rotation.x = -Math.PI / 2;
     actualScene.addEnvironment( floor );

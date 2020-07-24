@@ -9,7 +9,7 @@ class Player {
             moveBackward: false,
             moveLeft: false,
             moveRight: false,
-            canJump: false,
+            canJump: true,
             crouching: false,
             running: false,
             mousePressed: false,
@@ -24,7 +24,7 @@ class Player {
         this.weapon.position.y = -3;
         this.weapon.position.z = -10;
 
-        this.camera.position.y = 4;
+        this.camera.position.y = 20;
 
         this.camera.add(this.weapon);
         this.camera.add(this.mesh);
@@ -33,16 +33,6 @@ class Player {
 
         this.velocity = new THREE.Vector3();
         this.direction = new THREE.Vector3();
-
-        // this.mesh.position.y = 2;
-
-        // window.onbeforeunload = function (e) {
-        //     // Cancel the event
-        //     e.preventDefault();
-        
-        //     // Chrome requires returnValue to be set
-        //     // e.returnValue = 'Really want to quit the game?';
-        // };
 
         this.controls.domElement.addEventListener( 'keydown', (event) => {
             // console.log(event.keyCode, event.key);
@@ -133,28 +123,21 @@ class Player {
         let playerBox = new THREE.Box3().setFromObject(this.mesh);
         playBox = playerBox;
 
-        // console.log('checando');
-
-        // for (let i = 0; i < scene.environment.length; i++) {
-            // console.log(i);
-            let cubeBox = new THREE.Box3().setFromObject(scene.environment[1]);
-            // console.log(cubeBox);
-
-            // let left, right;
-            // let front, back;
-            // let up, down;
-
-            // right = (playerBox.min.x < cubeBox.max.x);
-            // up    = (playerBox.min.y < cubeBox.max.y);
-            // front = (playerBox.min.z < cubeBox.max.z); 
-
-            // left = (playerBox.max.x > cubeBox.min.x);
-            // down = (playerBox.max.y > cubeBox.min.y);
-            // back = (playerBox.max.z > cubeBox.min.z);
-
-            // console.log(left, right);
-
+        for (let i = 0; i < scene.environment.length; i++) {
+            let cubeBox = new THREE.Box3().setFromObject(scene.environment[i]);
             if (cubeBox.intersectsBox(playerBox)) {
+
+                console.log('hello');
+
+                if (!this.flags.canJump) {
+                    console.log('fallinig');
+                    if (playerBox.min.y <= cubeBox.max.y) {
+                        console.log('stop')
+                        this.camera.position.y = cubeBox.max.y + this.mesh.geometry.parameters.height + 1;
+                        this.flags.canJump = true; 
+                    }
+                }
+
                 let x = this.camera.position.x - this.lastPosition.x;
                 let z = this.camera.position.z - this.lastPosition.z;
                 
@@ -166,7 +149,7 @@ class Player {
                 this.camera.position.x = this.lastPosition.x + offsetX;
                 this.camera.position.z = this.lastPosition.z + offsetZ;
             }
-        // }
+        }
     }
 
     update(delta, scene) {
@@ -186,7 +169,11 @@ class Player {
             // velocity
             this.velocity.x -= this.velocity.x * 10.0 * delta;
             this.velocity.z -= this.velocity.z * 10.0 * delta;
-            this.velocity.y -= 9.8 * 50.0 * delta; // 100.0 = mass
+            if (this.flags.canJump) {
+                this.velocity.y = 0;
+            } else {
+                this.velocity.y -= 9.8 * 50.0 * delta; // 100.0 = mass
+            }
     
             // direction
             this.direction.z = Number( this.flags.moveForward ) - Number( this.flags.moveBackward );
@@ -202,13 +189,16 @@ class Player {
     
             this.controls.moveRight( - this.velocity.x * delta * ((this.flags.crouching) ? 0.5 : ((this.flags.running) ? 2 : 1)) );
             this.controls.moveForward( - this.velocity.z * delta * ((this.flags.crouching) ? 0.5 : ((this.flags.running) ? 2 : 1)) );
-            this.controls.getObject().position.y += ( this.velocity.y * delta ); // new behavior
-    
-            if ( this.controls.getObject().position.y < 10 ) {
-                this.velocity.y = 0;
-                this.controls.getObject().position.y = 10 - ((this.flags.crouching) ? 4 : 0);
-                this.flags.canJump = true;
+            
+            if (!this.flags.canJump) {
+                this.controls.getObject().position.y += ( this.velocity.y * delta ); // new behavior
             }
+    
+            // if ( this.controls.getObject().position.y < 10 ) {
+            //     this.velocity.y = 0;
+            //     this.controls.getObject().position.y = 10 - ((this.flags.crouching) ? 4 : 0);
+            //     this.flags.canJump = true;
+            // }
 
             if (this.flags.mouseClicked && !this.flags.shooting) {
                 this.flags.shooting = true;
