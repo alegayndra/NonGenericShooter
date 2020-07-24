@@ -18,10 +18,13 @@ class Player {
         }
         this.lastW = 0;
         this.frameAnimation = 0;
+        this.lastPosition = new THREE.Vector3(this.camera.x, this.camera.y, this.camera.z);
 
         this.weapon.position.x = 6;
         this.weapon.position.y = -3;
         this.weapon.position.z = -10;
+
+        this.camera.position.y = 4;
 
         this.camera.add(this.weapon);
         this.camera.add(this.mesh);
@@ -121,19 +124,49 @@ class Player {
         });
     }
 
+
+    xor(bool1, bool2) {
+        return ((bool1 && bool2) || (!bool1 && !bool2));
+    }
+
     checkCollisions(scene) {
         let playerBox = new THREE.Box3().setFromObject(this.mesh);
+        playBox = playerBox;
 
-        for (let i = 0; i < scene.environment.length; i++) {
-            let cubeBox = new THREE.Box3().setFromObject(scene.environment[i]);
+        // console.log('checando');
+
+        // for (let i = 0; i < scene.environment.length; i++) {
+            // console.log(i);
+            let cubeBox = new THREE.Box3().setFromObject(scene.environment[1]);
+            // console.log(cubeBox);
+
+            // let left, right;
+            // let front, back;
+            // let up, down;
+
+            // right = (playerBox.min.x < cubeBox.max.x);
+            // up    = (playerBox.min.y < cubeBox.max.y);
+            // front = (playerBox.min.z < cubeBox.max.z); 
+
+            // left = (playerBox.max.x > cubeBox.min.x);
+            // down = (playerBox.max.y > cubeBox.min.y);
+            // back = (playerBox.max.z > cubeBox.min.z);
+
+            // console.log(left, right);
 
             if (cubeBox.intersectsBox(playerBox)) {
-                console.log('colision');
-            }
-        }
+                let x = this.camera.position.x - this.lastPosition.x;
+                let z = this.camera.position.z - this.lastPosition.z;
+                
+                let val = 1;
 
-        // this.sphere.material = sphereBox.intersectsBox(cubeBox) ? this.materials.colliding : this.materials.solid;
-        // this.knot.material = knotBox.intersectsBox(cubeBox) ? this.materials.colliding : this.materials.solid;
+                let offsetX = ((x > 0) ? -val : val);
+                let offsetZ = ((z > 0) ? -val : val);
+
+                this.camera.position.x = this.lastPosition.x + offsetX;
+                this.camera.position.z = this.lastPosition.z + offsetZ;
+            }
+        // }
     }
 
     update(delta, scene) {
@@ -144,11 +177,11 @@ class Player {
             // console.log("posicion rayo: ", this.raycaster.ray.origin);
     
             // collisions
-            this.raycaster.ray.origin.copy( this.controls.getObject().position );
-            this.raycaster.ray.origin.y -= 10;
+            // this.raycaster.ray.origin.copy( this.controls.getObject().position );
+            // this.raycaster.ray.origin.y -= 10;
     
-            let intersections = this.raycaster.intersectObjects( scene.children );
-            let onObject = intersections.length > 0;
+            // let intersections = this.raycaster.intersectObjects( scene.children );
+            // let onObject = intersections.length > 0;
     
             // velocity
             this.velocity.x -= this.velocity.x * 10.0 * delta;
@@ -162,10 +195,10 @@ class Player {
             this.direction.normalize(); // this ensures consistent movements in all directions
             if ( this.flags.moveForward || this.flags.moveBackward ) this.velocity.z -= this.direction.z * 400.0 * delta;
             if ( this.flags.moveLeft || this.flags.moveRight ) this.velocity.x -= this.direction.x * 400.0 * delta;
-            if ( onObject === true ) {
-                this.velocity.y = Math.max( 0, this.velocity.y );
-                this.flags.canJump = true;
-            }
+            // if ( onObject === true ) {
+            //     this.velocity.y = Math.max( 0, this.velocity.y );
+            //     this.flags.canJump = true;
+            // }
     
             this.controls.moveRight( - this.velocity.x * delta * ((this.flags.crouching) ? 0.5 : ((this.flags.running) ? 2 : 1)) );
             this.controls.moveForward( - this.velocity.z * delta * ((this.flags.crouching) ? 0.5 : ((this.flags.running) ? 2 : 1)) );
@@ -190,8 +223,14 @@ class Player {
                     this.flags.shooting = false;
                 }
             }
+            console.log((this.lastPosition == this.controls.getObject().position));
 
             this.checkCollisions(scene);
+
+
+            this.lastPosition.x = this.camera.position.x;
+            this.lastPosition.y = this.camera.position.y;
+            this.lastPosition.z = this.camera.position.z;
         }
 
     }

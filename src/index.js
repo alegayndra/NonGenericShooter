@@ -3,6 +3,8 @@ let actualScene, gameScenes = [];
 
 // let objects = [];
 
+let playBox;
+
 let raycaster;
 
 let blocker, instructions;
@@ -18,6 +20,11 @@ let prevTime = performance.now();
 
 let floorUrl = "../images/checker_large.gif";
 let cubeUrl = "../images/wooden_crate_2.png";
+
+let cubeBox;
+let movement = false;
+// let uno;
+// let dos;
 
 function initPointerLock() {
     blocker = document.getElementById( 'blocker' );
@@ -54,7 +61,7 @@ function createGameScene() {
 let box;
 
 function createPlayer(camera, controls) {
-    let size = 2;
+    let size = 5;
     let boxGeometry = new THREE.BoxGeometry( size, size, size );
     let cubeMap = new THREE.TextureLoader().load(cubeUrl);    
     let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
@@ -113,25 +120,37 @@ function createScene(canvas)  {
 
     // objects
 
-    let boxGeometry = new THREE.BoxGeometry( 20, 20, 20 );
+    let sizeBox = 10;
+    let boxGeometry = new THREE.BoxGeometry( sizeBox, sizeBox, sizeBox );
     let cubeMap = new THREE.TextureLoader().load(cubeUrl);
+    let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
+    let box = new THREE.Mesh( boxGeometry, boxMaterial );
+    box.position.z = -10;
+    box.position.x = 0;
+    box.position.y = 5;
+    actualScene.addEnvironment(box);
+    // cubeBox = new THREE.Mesh( boxGeometry, boxMaterial );
+    // cubeBox.position.x = -10;
+    // cubeBox.position.z = -10;
+    // cubeBox.position.y = 5;
+    // actualScene.addEnvironment(cubeBox);
 
-    for ( let i = 0; i < 50; i ++ ) 
-    {
-        let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
+    // for ( let i = 0; i < 50; i ++ ) 
+    // {
+    //     let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
 
-        let box = new THREE.Mesh( boxGeometry, boxMaterial );
-        box.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
-        box.position.y = Math.floor( Math.random() * 3 ) * 20 + 10;
-        box.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
+    //     let box = new THREE.Mesh( boxGeometry, boxMaterial );
+    //     box.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
+    //     box.position.y = Math.floor( Math.random() * 3 ) * 20 + 10;
+    //     box.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
 
-        // let obj = {
-        //     mesh: box,
-        //     update: (delta) => {console.log('undefkinedasda')}
-        // }
+    //     // let obj = {
+    //     //     mesh: box,
+    //     //     update: (delta) => {console.log('undefkinedasda')}
+    //     // }
 
-        actualScene.addEnvironment(box);
-    }
+    //     actualScene.addEnvironment(box);
+    // }
 
     
 
@@ -159,7 +178,6 @@ function run() {
     prevTime = time;
 
     actualScene.update(delta);
-
 
     renderer.render( actualScene.ThreeScene, actualScene.player.camera );
 
