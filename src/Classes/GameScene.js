@@ -19,6 +19,11 @@ class GameScene {
         this.ThreeScene.add(light);
     }
 
+    addEnvironment(obj) {
+        this.environment.push(obj);
+        this.ThreeScene.add(obj);
+    }
+
     addPlayer(player) {
         this.player = player;
         // this.ThreeScene.add(player.mesh);

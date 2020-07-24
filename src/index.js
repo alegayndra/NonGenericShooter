@@ -51,12 +51,15 @@ function createGameScene() {
     return gameScene;
 }
 
+let box;
+
 function createPlayer(camera, controls) {
     let size = 2;
     let boxGeometry = new THREE.BoxGeometry( size, size, size );
     let cubeMap = new THREE.TextureLoader().load(cubeUrl);    
     let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
-    let box = new THREE.Mesh( boxGeometry, boxMaterial );
+    // let box = new THREE.Mesh( boxGeometry, boxMaterial );
+    box = new THREE.Mesh( boxGeometry, boxMaterial );
 
     cubeMap = new THREE.TextureLoader().load('../images/lavatile.jpg');    
     boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
@@ -77,6 +80,8 @@ function createScene(canvas)  {
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
 
     let scene = createGameScene();
+    gameScenes.push(scene);
+    actualScene = gameScenes[0];
 
     // A light source positioned directly above the scene, with color fading from the sky color to the ground color. 
     // HemisphereLight( skyColor, groundColor, intensity )
@@ -86,7 +91,7 @@ function createScene(canvas)  {
 
     let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
     light.position.set( 0.5, 1, 0.75 );
-    scene.addLight( light );
+    actualScene.addLight( light );
 
     // Raycaster( origin, direction, near, far )
     // origin — The origin vector where the ray casts from.
@@ -104,36 +109,31 @@ function createScene(canvas)  {
     let floorGeometry = new THREE.PlaneGeometry( 2000, 2000, 100, 100 );
     let floor = new THREE.Mesh(floorGeometry, new THREE.MeshPhongMaterial({color:0xffffff, map:map, side:THREE.DoubleSide}));
     floor.rotation.x = -Math.PI / 2;
-    let objeto = {
-        mesh: floor,
-        update: (delta) => {console.log('undefkinedasda')} 
-    }
-    scene.addObject( objeto );
+    actualScene.addEnvironment( floor );
 
     // objects
 
-    // let boxGeometry = new THREE.BoxGeometry( 20, 20, 20 );
-    // let cubeMap = new THREE.TextureLoader().load(cubeUrl);
+    let boxGeometry = new THREE.BoxGeometry( 20, 20, 20 );
+    let cubeMap = new THREE.TextureLoader().load(cubeUrl);
 
-    // for ( let i = 0; i < 500; i ++ ) 
-    // {
-    //     let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
+    for ( let i = 0; i < 50; i ++ ) 
+    {
+        let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
 
-    //     let box = new THREE.Mesh( boxGeometry, boxMaterial );
-    //     box.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
-    //     box.position.y = Math.floor( Math.random() * 20 ) * 20 + 10;
-    //     box.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
+        let box = new THREE.Mesh( boxGeometry, boxMaterial );
+        box.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
+        box.position.y = Math.floor( Math.random() * 3 ) * 20 + 10;
+        box.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
 
-    //     let obj = {
-    //         mesh: box,
-    //         update: (delta) => {console.log('undefkinedasda')}
-    //     }
+        // let obj = {
+        //     mesh: box,
+        //     update: (delta) => {console.log('undefkinedasda')}
+        // }
 
-    //     scene.addObject( obj );
-    // }
+        actualScene.addEnvironment(box);
+    }
 
-    gameScenes.push(scene);
-    actualScene = gameScenes[0];
+    
 
     let controls = initPointerLock();
 

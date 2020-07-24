@@ -121,6 +121,20 @@ class Player {
         });
     }
 
+    checkCollisions(scene) {
+        let playerBox = new THREE.Box3().setFromObject(this.mesh);
+
+        for (let i = 0; i < scene.environment.length; i++) {
+            let cubeBox = new THREE.Box3().setFromObject(scene.environment[i]);
+
+            if (cubeBox.intersectsBox(playerBox)) {
+                console.log('colision');
+            }
+        }
+
+        // this.sphere.material = sphereBox.intersectsBox(cubeBox) ? this.materials.colliding : this.materials.solid;
+        // this.knot.material = knotBox.intersectsBox(cubeBox) ? this.materials.colliding : this.materials.solid;
+    }
 
     update(delta, scene) {
         // console.log('update not defined', delta);
@@ -176,6 +190,8 @@ class Player {
                     this.flags.shooting = false;
                 }
             }
+
+            this.checkCollisions(scene);
         }
 
     }
