@@ -9,7 +9,7 @@ class Player {
             moveBackward: false,
             moveLeft: false,
             moveRight: false,
-            canJump: true,
+            canJump: false,
             crouching: false,
             running: false,
             mousePressed: false,
@@ -33,6 +33,17 @@ class Player {
 
         this.velocity = new THREE.Vector3();
         this.direction = new THREE.Vector3();
+
+        this.limits = {
+            x: {
+                min: 0,
+                max: 0,
+            },
+            z: {
+                min: 0,
+                max: 0
+            }
+        }
 
         this.controls.domElement.addEventListener( 'keydown', (event) => {
             // console.log(event.keyCode, event.key);
@@ -126,15 +137,17 @@ class Player {
         for (let i = 0; i < scene.environment.length; i++) {
             let cubeBox = new THREE.Box3().setFromObject(scene.environment[i]);
             if (cubeBox.intersectsBox(playerBox)) {
-
-                console.log('hello');
-
                 if (!this.flags.canJump) {
-                    console.log('fallinig');
-                    if (playerBox.min.y <= cubeBox.max.y) {
-                        console.log('stop')
-                        this.camera.position.y = cubeBox.max.y + this.mesh.geometry.parameters.height + 1;
+                    if (playerBox.min.y <= cubeBox.max.y  && playerBox.max.y > cubeBox.max.y) {
+                        this.camera.position.y = cubeBox.max.y + this.mesh.geometry.parameters.height;
                         this.flags.canJump = true; 
+                        this.limits.x.min = cubeBox.min.x;
+                        this.limits.x.max = cubeBox.max.x;
+                        this.limits.z.min = cubeBox.min.z;
+                        this.limits.z.max = cubeBox.max.z;
+                    } else if (playerBox.max.y >= cubeBox.min.y && playerBox.min.y < cubeBox.min.y) {
+                        this.camera.position.y = cubeBox.min.y - this.mesh.geometry.parameters.height - 0.1;
+                        this.velocity.y = 0;
                     }
                 }
 
@@ -158,13 +171,6 @@ class Player {
 
             // console.log("posicion: ",      this.controls.getObject().position);
             // console.log("posicion rayo: ", this.raycaster.ray.origin);
-    
-            // collisions
-            // this.raycaster.ray.origin.copy( this.controls.getObject().position );
-            // this.raycaster.ray.origin.y -= 10;
-    
-            // let intersections = this.raycaster.intersectObjects( scene.children );
-            // let onObject = intersections.length > 0;
     
             // velocity
             this.velocity.x -= this.velocity.x * 10.0 * delta;
@@ -214,6 +220,23 @@ class Player {
                 }
             }
             console.log((this.lastPosition == this.controls.getObject().position));
+
+
+            if (this.flags.canJump) {
+                let x = this.camera.position.x;
+                let z = this.camera.position.z;
+                let width = this.mesh.geometry.parameters.width;
+                let depth = this.mesh.geometry.parameters.depth;
+                let minX = (x + width < this.limits.x.min);
+                let minZ = (z + depth < this.limits.z.min);
+                let maxX = (x - width > this.limits.x.max);
+                let maxZ = (z - depth > this.limits.x.max);
+
+                if (minX || minZ || maxX || maxZ) {
+                    this.flags.canJump = false;
+                }
+            }
+
 
             this.checkCollisions(scene);
 

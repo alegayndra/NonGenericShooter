@@ -129,7 +129,7 @@ function createScene(canvas)  {
     let box = new THREE.Mesh( boxGeometry, boxMaterial );
     box.position.z = -10;
     box.position.x = 0;
-    box.position.y = 5;
+    box.position.y = 25;
     actualScene.addEnvironment(box);
     // cubeBox = new THREE.Mesh( boxGeometry, boxMaterial );
     // cubeBox.position.x = -10;
