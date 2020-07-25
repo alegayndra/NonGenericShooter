@@ -20,6 +20,7 @@ let prevTime = performance.now();
 
 let floorUrl = "../images/checker_large.gif";
 let cubeUrl = "../images/wooden_crate_2.png";
+let chestURl = "../images/minecra.png";
 
 let cubeBox;
 let movement = false;
@@ -74,6 +75,28 @@ function createPlayer(camera, controls) {
     let player = new Player(box, new THREE.Mesh( boxGeometry, boxMaterial ), camera, controls);
 
     return player;
+}
+
+function createLootChest(size, x, y, z) {
+    let sizeBox = size;
+    let boxGeometry = new THREE.BoxGeometry( sizeBox, sizeBox, sizeBox );
+    let chestMap = new THREE.TextureLoader().load(chestURl);
+    let cubeMap = new THREE.TextureLoader().load(cubeUrl);
+    let boxMaterial = [
+        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: chestMap } ),
+        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap } ),
+        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: chestMap } ),
+        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap } ),
+        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: chestMap } ),
+        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: chestMap } )
+    ];
+    let box = new THREE.Mesh( boxGeometry, boxMaterial );
+    box.position.z = z;
+    box.position.x = y;
+    box.position.y = x;
+
+    let lootChest = new Loot(box, 100);
+    return lootChest;
 }
 
 function createScene(canvas)  {
@@ -155,6 +178,8 @@ function createScene(canvas)  {
     // }
 
     
+    let lootChest = createLootChest(7,5,0,-20);
+    actualScene.addEnvironment(lootChest);
 
     let controls = initPointerLock();
 
