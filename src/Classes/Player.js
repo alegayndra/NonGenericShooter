@@ -125,8 +125,8 @@ class Player {
     shoot(delta) {
         if (this.controls.getMouseClicked() && !this.flags.shooting) {
             this.flags.shooting = true;
-            var shootVelo = 30;
-            var ballShape = new CANNON.Sphere(3);
+            var shootVelo = 250;
+            var ballShape = new CANNON.Sphere(1);
             var ballGeometry = new THREE.SphereGeometry(ballShape.radius, 32, 32);
             var shootDirection = this.raycaster.ray.direction;
 
@@ -135,7 +135,7 @@ class Player {
             var x = this.controls.getObject().position.x;
             var y = this.controls.getObject().position.y;
             var z = this.controls.getObject().position.z;
-            var ballBody = new CANNON.Body({ mass: 1 });
+            var ballBody = new CANNON.Body({ mass: 0.1 });
             ballBody.addShape(ballShape);
             var ballMesh = new THREE.Mesh( ballGeometry, material );
             let bullet = {
@@ -170,7 +170,7 @@ class Player {
 
         this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.raycaster.camera);
 
-        this.raycaster.ray.origin.copy( this.controls.getObject().position );    
+        // this.raycaster.ray.origin.copy( this.controls.getObject().position );    
         // this.raycaster.ray.direction.x = this.controls.getObject().quaternion.x ;
         // this.raycaster.ray.origin.y -= 10;
 
