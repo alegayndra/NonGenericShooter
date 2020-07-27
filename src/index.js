@@ -1,10 +1,10 @@
 let camera, renderer, controls;
 let actualScene, gameScenes = [];
 
-let world;
-let boxes = [], boxMeshes = [];
+// let world;
+// let boxes = [], boxMeshes = [];
 
-let raycaster;
+// let raycaster;
 
 let blocker, instructions;
 
@@ -13,12 +13,11 @@ let prevTime = performance.now();
 let floorUrl = "../images/checker_large.gif";
 let cubeUrl = "../images/wooden_crate_2.png";
 
-let conBody;
+// let conBody;
 
 function initPointerLock() {
     blocker = document.getElementById( 'blocker' );
     instructions = document.getElementById( 'instructions' );
-
     var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 
     if ( havePointerLock ) {
@@ -26,25 +25,16 @@ function initPointerLock() {
         var element = document.body;
 
         var pointerlockchange = function ( event ) {
-
             if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
-
                 controls.enabled = true;
-
                 blocker.style.display = 'none';
-
             } else {
-
                 controls.enabled = false;
-
                 blocker.style.display = '-webkit-box';
                 blocker.style.display = '-moz-box';
                 blocker.style.display = 'box';
-
                 instructions.style.display = '';
-
             }
-
         }
 
         var pointerlockerror = function ( event ) {
@@ -67,47 +57,36 @@ function initPointerLock() {
             element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
 
             if ( /Firefox/i.test( navigator.userAgent ) ) {
-
                 var fullscreenchange = function ( event ) {
-
                     if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
-
                         document.removeEventListener( 'fullscreenchange', fullscreenchange );
                         document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
-
                         element.requestPointerLock();
                     }
-
                 }
 
                 document.addEventListener( 'fullscreenchange', fullscreenchange, false );
                 document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
-
                 element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
-
                 element.requestFullscreen();
 
             } else {
-
                 element.requestPointerLock();
-
             }
-
         }, false );
-
     } else {
-
         instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
-
     }
 
-    let mass = 5, radius = 1.3;
-    let sphereShape = new CANNON.Sphere(radius);
+    let mass = 10, radius = 10;
+    let halfExtents = new CANNON.Vec3(1,1,1);
+    // let boxShape = new CANNON.Box(halfExtents);
+    let boxShape = new CANNON.Sphere(radius);
     conBody = new CANNON.Body({ mass: mass });
-    conBody.addShape(sphereShape);
+    conBody.addShape(boxShape);
     conBody.position.set(0,5,0);
     conBody.linearDamping = 0.9;
-    world.addBody(conBody);
+    actualScene.CannonWorld.addBody(conBody);
 
     controls = new PointerLockControls( camera, conBody );
 
@@ -119,15 +98,17 @@ function createGameScene() {
     let scene = new THREE.Scene();
     scene.background = new THREE.Color( 0xffffff );
     scene.fog = new THREE.Fog( 0xffffff, 0, 550 );
-    let gameScene = new GameScene(scene, 'prueba');
+    let gameScene = new GameScene(scene, initCannon(), 'prueba');
     return gameScene;
 }
 
 let box;
 
 function createPlayer(camera, controls) {
-    let size = 5;
-    let boxGeometry = new THREE.BoxGeometry( size, size, size );
+    // let size = 2;
+    var halfExtents = new CANNON.Vec3(1,1,1);
+    var boxGeometry = new THREE.BoxGeometry(halfExtents.x*2,halfExtents.y*2,halfExtents.z*2);
+    // let boxGeometry = new THREE.BoxGeometry( size, size, size );
     let cubeMap = new THREE.TextureLoader().load(cubeUrl);    
     let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
     // let box = new THREE.Mesh( boxGeometry, boxMaterial );
@@ -136,46 +117,63 @@ function createPlayer(camera, controls) {
     cubeMap = new THREE.TextureLoader().load('../images/lavatile.jpg');    
     boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
 
-    let player = new Player(box, new THREE.Mesh( boxGeometry, boxMaterial ), camera, controls);
+    let player = new Player(box, new THREE.Mesh( boxGeometry, boxMaterial ), controls);
 
     return player;
 }
 
 function createBoxes() {
     // Add boxes
-    let material = new THREE.MeshLambertMaterial( { color: 0xdddddd } );
-    geometry = new THREE.PlaneGeometry( 300, 300, 50, 50 );
-    geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
+    let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
+    // geometry = new THREE.PlaneGeometry( 300, 300, 50, 50 );
+    // console.log(geometry);
+    // geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
 
-    mesh = new THREE.Mesh( geometry, material );
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    actualScene.addEnvironment( mesh );
+    // mesh = new THREE.Mesh( geometry, material );
+    // mesh.castShadow = true;
+    // mesh.receiveShadow = true;
+    // let obj = new Entity(mesh, new CANNON.Body({ mass: 0 }));
+    // actualScene.addEnvironment( obj, false );
 
-    var halfExtents = new CANNON.Vec3(1,1,1);
+    let size = 100;
+    var halfExtents = new CANNON.Vec3(size, 1, size);
     var boxShape = new CANNON.Box(halfExtents);
-    var boxGeometry = new THREE.BoxGeometry(halfExtents.x*2,halfExtents.y*2,halfExtents.z*2);
+    var boxGeometry = new THREE.BoxGeometry(halfExtents.x*2, 2, halfExtents.z*2);
+
+    var boxBody = new CANNON.Body({ mass: 0.0 });
+    boxBody.addShape(boxShape);
+    var boxMesh = new THREE.Mesh( boxGeometry, material );
+    let obj = new Entity(boxMesh, boxBody);
+    actualScene.addEnvironment(obj, false);
+    boxMesh.castShadow = true;
+    boxMesh.receiveShadow = true;
+
+    size = 4;
+    halfExtents = new CANNON.Vec3(size, size, size);
+    boxShape = new CANNON.Box(halfExtents);
+    boxGeometry = new THREE.BoxGeometry(halfExtents.x*2,halfExtents.y*2,halfExtents.z*2);
     for(var i=0; i<7; i++){
         var x = (Math.random()-0.5)*20;
-        var y = 1 + (Math.random()-0.5)*1;
+        var y = 1 + (Math.random() + 1) * 5 ;
         var z = (Math.random()-0.5)*20;
         var boxBody = new CANNON.Body({ mass: 5 });
         boxBody.addShape(boxShape);
         var boxMesh = new THREE.Mesh( boxGeometry, material );
-        world.addBody(boxBody);
-        actualScene.addEnvironment(boxMesh);
+        // world.addBody(boxBody);
+        let obj = new Entity(boxMesh, boxBody);
+        actualScene.addEnvironment(obj, true);
         boxBody.position.set(x,y,z);
         boxMesh.position.set(x,y,z);
         boxMesh.castShadow = true;
         boxMesh.receiveShadow = true;
-        boxes.push(boxBody);
-        boxMeshes.push(boxMesh);
+        // boxes.push(boxBody);
+        // boxMeshes.push(boxMesh);
     }
 }
 
 function initCannon() {
     // Setup our world
-    world = new CANNON.World();
+    let world = new CANNON.World();
     world.quatNormalizeSkip = 0;
     world.quatNormalizeFast = false;
 
@@ -192,48 +190,50 @@ function initCannon() {
     else
         world.solver = solver;
 
-    world.gravity.set(0,-20,0);
+    world.gravity.set(0,-90,0);
     world.broadphase = new CANNON.NaiveBroadphase();
 
     // Create a slippery material (friction coefficient = 0.0)
     physicsMaterial = new CANNON.Material("slipperyMaterial");
     var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial,
                                                             physicsMaterial,
-                                                            0.0, // friction coefficient
+                                                            -0.0, // friction coefficient
                                                             0.3  // restitution
                                                             );
     // We must add the contact materials to the world
     world.addContactMaterial(physicsContactMaterial);
 
-    // Create a sphere
-    var mass = 5, radius = 1.3;
-    sphereShape = new CANNON.Sphere(radius);
-    sphereBody = new CANNON.Body({ mass: mass });
-    sphereBody.addShape(sphereShape);
-    sphereBody.position.set(0,5,0);
-    sphereBody.linearDamping = 0.9;
-    world.addBody(sphereBody);
+    // // Create a sphere
+    // var mass = 5, radius = 1.3;
+    // sphereShape = new CANNON.Sphere(radius);
+    // sphereBody = new CANNON.Body({ mass: mass });
+    // sphereBody.addShape(sphereShape);
+    // sphereBody.position.set(0,5,0);
+    // sphereBody.linearDamping = 0.9;
+    // world.addBody(sphereBody);
 
     // Create a plane
-    var groundShape = new CANNON.Plane();
-    var groundBody = new CANNON.Body({ mass: 0 });
-    groundBody.addShape(groundShape);
-    groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
-    world.addBody(groundBody);
+    // var groundShape = new CANNON.Plane();
+    // var groundBody = new CANNON.Body({ mass: 0 });
+    // groundBody.addShape(groundShape);
+    // groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+    // world.addBody(groundBody);
+
+    return world;
 }
 
 function createScene(canvas)  {
     initCannon();
     renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
 
-    // renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
 
     window.addEventListener( 'resize', onWindowResize, false );
     
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
 
-    camera.position.y = 100;
+    // camera.position.y = 100;
 
     let scene = createGameScene();
     gameScenes.push(scene);
@@ -245,8 +245,25 @@ function createScene(canvas)  {
     // groundColor - (optional) hexadecimal color of the ground. Default is 0xffffff.
     // intensity - (optional) numeric value of the light's strength/intensity. Default is 1.
 
-    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.75 );
+    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.2 );
     light.position.set( 0.5, 1, 0.75 );
+    actualScene.addLight( light );
+
+    light = new THREE.SpotLight( 0xffffff );
+    light.position.set( 0, 30, 10 );
+    light.target.position.set( 0, 0, 0 );
+    if(true){
+        let SHADOW_MAP_WIDTH = 2048;
+        let SHADOW_MAP_HEIGHT = 2048;
+        light.castShadow = true;
+        light.shadow.camera.near = 1;
+        light.shadow.camera.far = 200;
+        light.shadow.camera.fov = 45;
+        light.shadow.mapSize.width = SHADOW_MAP_WIDTH;
+        light.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
+
+        //light.shadowCameraVisible = true;
+    }
     actualScene.addLight( light );
 
     // Raycaster( origin, direction, near, far )
@@ -304,39 +321,26 @@ function createScene(canvas)  {
     
 
     let controls = initPointerLock();
-
     let player = createPlayer(camera, controls);
-
     createBoxes();
+
+    actualScene.environment.kinematic.forEach(function (child) {
+        child.mesh.castShadow = true;
+        child.mesh.receiveShadow = true;
+    });
+
+    actualScene.environment.static.forEach(function (child) {
+        child.mesh.castShadow = true;
+        child.mesh.receiveShadow = true;
+    });
 
     actualScene.addPlayer(player);
 }
 
 function onWindowResize() {
-
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-
     renderer.setSize( window.innerWidth, window.innerHeight );
-
-}
-
-function animate(dt) {
-    if(controls.enabled){
-        world.step(dt);
-
-        // // Update ball positions
-        // for(var i=0; i<balls.length; i++){
-        //     ballMeshes[i].position.copy(balls[i].position);
-        //     ballMeshes[i].quaternion.copy(balls[i].quaternion);
-        // }
-
-        // Update box positions
-        for(var i=0; i<boxes.length; i++){
-            boxMeshes[i].position.copy(boxes[i].position);
-            boxMeshes[i].quaternion.copy(boxes[i].quaternion);
-        }
-    }
 }
 
 function run() {
@@ -345,15 +349,10 @@ function run() {
     let time = performance.now();
     let delta = ( time - prevTime ) / 1000;
 
-    animate(delta);
-    
-    // actualScene.player.controls.update( delta );
-    controls.update( delta * 1000 );
-
     actualScene.update(delta);
 
     prevTime = time;
 
-    renderer.render( actualScene.ThreeScene, actualScene.player.camera );
+    renderer.render( actualScene.ThreeScene, actualScene.player.controls.getCamera() );
 
 }

@@ -1,49 +1,46 @@
 class Player {
-    constructor(mesh, gun, camera, controls) {
+    constructor(mesh, gun, controls) {
         this.mesh = mesh;
-        this.weapon = gun ;
-        this.camera = camera;
+        this.weapon = gun;
         this.controls = controls;
-        this.flags = {
-            moveForward: false,
-            moveBackward: false,
-            moveLeft: false,
-            moveRight: false,
-            canJump: false,
-            crouching: false,
-            running: false,
-            mousePressed: false,
-            shooting: false,
-            mouseClicked: false 
-        }
-        this.lastW = 0;
-        this.frameAnimation = 0;
-        this.lastPosition = new THREE.Vector3(this.camera.x, this.camera.y, this.camera.z);
+        this.raycaster = new THREE.Raycaster();
 
-        this.weapon.position.x = 6;
+        this.weapon.position.x = 4;
         this.weapon.position.y = -3;
-        this.weapon.position.z = -10;
+        this.weapon.position.z = -4;
 
-        this.camera.position.y = 20;
+        this.controls.getCamera().add(this.weapon);
+        this.controls.getCamera().add(this.mesh);
 
-        this.camera.add(this.weapon);
-        this.camera.add(this.mesh);
+        this.raycaster.camera = controls.getCamera();
 
-        this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 15 );
-
-        this.velocity = new THREE.Vector3();
-        this.direction = new THREE.Vector3();
-
-        this.limits = {
-            x: {
-                min: 0,
-                max: 0,
-            },
-            z: {
-                min: 0,
-                max: 0
-            }
+        this.flags = {
+            shooting: false
         }
+
+        this.frameAnimation = 0;
+
+
+        // this.raycaster = new THREE.Raycaster();//THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 15 );
+        // console.log(this.ray);
+
+        // this.flags = {
+        //     moveForward: false,
+        //     moveBackward: false,
+        //     moveLeft: false,
+        //     moveRight: false,
+        //     canJump: false,
+        //     crouching: false,
+        //     running: false,
+        //     mousePressed: false,
+        //     shooting: false,
+        //     mouseClicked: false 
+        // }
+        // this.lastW = 0;
+        // this.frameAnimation = 0;
+        // this.lastPosition = new THREE.Vector3(this.camera.x, this.camera.y, this.camera.z);        
+
+        // this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 15 );
 
         // this.controls.domElement.addEventListener( 'keydown', (event) => {
         //     // console.log(event.keyCode, event.key);
@@ -125,127 +122,81 @@ class Player {
         // });
     }
 
+    shoot(delta) {
+        if (this.controls.getMouseClicked() && !this.flags.shooting) {
+            this.flags.shooting = true;
+            var shootVelo = 30;
+            var ballShape = new CANNON.Sphere(3);
+            var ballGeometry = new THREE.SphereGeometry(ballShape.radius, 32, 32);
+            var shootDirection = this.raycaster.ray.direction;
 
-    xor(bool1, bool2) {
-        return ((bool1 && bool2) || (!bool1 && !bool2));
-    }
+            let material = new THREE.MeshPhongMaterial( { color: 0xffffff } );
 
-    checkCollisions(scene) {
-        let playerBox = new THREE.Box3().setFromObject(this.mesh);
+            var x = this.controls.getObject().position.x;
+            var y = this.controls.getObject().position.y;
+            var z = this.controls.getObject().position.z;
+            var ballBody = new CANNON.Body({ mass: 1 });
+            ballBody.addShape(ballShape);
+            var ballMesh = new THREE.Mesh( ballGeometry, material );
+            let bullet = {
+                mesh: ballMesh,
+                cannonBody: ballBody
+            }
+            actualScene.addBullet(bullet);
+            ballMesh.castShadow = true;
+            ballMesh.receiveShadow = true;
 
-        for (let i = 0; i < scene.environment.length; i++) {
-            let cubeBox = new THREE.Box3().setFromObject(scene.environment[i]);
-            if (cubeBox.intersectsBox(playerBox)) {
-                if (!this.flags.canJump) {
-                    if (playerBox.min.y <= cubeBox.max.y  && playerBox.max.y > cubeBox.max.y) {
-                        this.camera.position.y = cubeBox.max.y + this.mesh.geometry.parameters.height;
-                        this.flags.canJump = true; 
-                        this.limits.x.min = cubeBox.min.x;
-                        this.limits.x.max = cubeBox.max.x;
-                        this.limits.z.min = cubeBox.min.z;
-                        this.limits.z.max = cubeBox.max.z;
-                    } else if (playerBox.max.y >= cubeBox.min.y && playerBox.min.y < cubeBox.min.y) {
-                        this.camera.position.y = cubeBox.min.y - this.mesh.geometry.parameters.height - 0.1;
-                        this.velocity.y = 0;
-                    }
-                }
+            // getShootDir(shootDirection);
+            ballBody.velocity.set(shootDirection.x * shootVelo, shootDirection.y * shootVelo, shootDirection.z * shootVelo);
 
-                let x = this.camera.position.x - this.lastPosition.x;
-                let z = this.camera.position.z - this.lastPosition.z;
-                
-                let val = 1;
+            // Move the ball outside the player sphere
+            x += shootDirection.x * (1.02 + ballShape.radius);
+            y += shootDirection.y * (1.02 + ballShape.radius);
+            z += shootDirection.z * (1.02 + ballShape.radius);
+            ballBody.position.set(x,y,z);
+            ballMesh.position.set(x,y,z);
+        }
 
-                let offsetX = ((x > 0) ? -val : val);
-                let offsetZ = ((z > 0) ? -val : val);
+        if (this.flags.shooting) {
 
-                this.camera.position.x = this.lastPosition.x + offsetX;
-                this.camera.position.z = this.lastPosition.z + offsetZ;
+            this.frameAnimation += 12 * delta;
+            this.weapon.rotation.x = this.frameAnimation;
+            if (this.frameAnimation >= Math.PI * 2) {
+                this.weapon.rotation.x = 0;
+                this.frameAnimation = 0;
+                this.flags.shooting = false;
             }
         }
+
+        this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.raycaster.camera);
+
+        this.raycaster.ray.origin.copy( this.controls.getObject().position );    
+        // this.raycaster.ray.direction.x = this.controls.getObject().quaternion.x ;
+        // this.raycaster.ray.origin.y -= 10;
+
+        // let intersections = this.raycaster.intersectObjects( actualScene.ThreeScene.children );
+
+        // var intersects = raycaster.intersectObjects( scene.children );
+
+        // for ( var i = 0; i < intersections.length; i++ ) {
+        //     intersections[ i ].object.material.color.set( 0xff0000 );
+        // }
+
+        // var projector = new THREE.Projector();
+        // function getShootDir(targetVec){
+        //     var vector = targetVec;
+        //     targetVec.set(0,0,1);
+        //     projector.unprojectVector(vector, camera);
+        //     var ray = new THREE.Ray(sphereBody.position, vector.sub(sphereBody.position).normalize() );
+        //     targetVec.copy(ray.direction);
+        // }
     }
 
-    update(delta, scene) {
-        // console.log('update not defined', delta);
-        if ( this.controls.isLocked === true ) {
-
-            // console.log("posicion: ",      this.controls.getObject().position);
-            // console.log("posicion rayo: ", this.raycaster.ray.origin);
-    
-            // velocity
-                // this.velocity.x -= this.velocity.x * 10.0 * delta;
-                // this.velocity.z -= this.velocity.z * 10.0 * delta;
-                // if (this.flags.canJump) {
-                //     this.velocity.y = 0;
-                // } else {
-                //     this.velocity.y -= 9.8 * 50.0 * delta; // 100.0 = mass
-                // }
+    update(delta) {
         
-                // // direction
-                // this.direction.z = Number( this.flags.moveForward ) - Number( this.flags.moveBackward );
-                // this.direction.x = Number( this.flags.moveRight ) - Number( this.flags.moveLeft );
-        
-                // this.direction.normalize(); // this ensures consistent movements in all directions
-                // if ( this.flags.moveForward || this.flags.moveBackward ) this.velocity.z -= this.direction.z * 400.0 * delta;
-                // if ( this.flags.moveLeft || this.flags.moveRight ) this.velocity.x -= this.direction.x * 400.0 * delta;
-                // // if ( onObject === true ) {
-                // //     this.velocity.y = Math.max( 0, this.velocity.y );
-                // //     this.flags.canJump = true;
-                // // }
-        
-                // this.controls.moveRight( - this.velocity.x * delta * ((this.flags.crouching) ? 0.5 : ((this.flags.running) ? 2 : 1)) );
-                // this.controls.moveForward( - this.velocity.z * delta * ((this.flags.crouching) ? 0.5 : ((this.flags.running) ? 2 : 1)) );
-                
-                // if (!this.flags.canJump) {
-                //     this.controls.getObject().position.y += ( this.velocity.y * delta ); // new behavior
-                // }
-        
-                // // if ( this.controls.getObject().position.y < 10 ) {
-                // //     this.velocity.y = 0;
-                // //     this.controls.getObject().position.y = 10 - ((this.flags.crouching) ? 4 : 0);
-                // //     this.flags.canJump = true;
-                // // }
+        this.shoot(delta);
 
-                // if (this.flags.mouseClicked && !this.flags.shooting) {
-                //     this.flags.shooting = true;
-                // }
+        this.controls.update(delta * 1000);
 
-                // if (this.flags.shooting) {
-                //     this.frameAnimation += 12 * delta;
-                //     this.weapon.rotation.x = this.frameAnimation;
-                //     if (this.frameAnimation >= Math.PI * 2) {
-                //         this.weapon.rotation.x = 0;
-                //         this.frameAnimation = 0;
-                //         this.flags.shooting = false;
-                //     }
-                // }
-
-                // // console.log((this.lastPosition == this.controls.getObject().position));
-
-                // if (this.flags.canJump) {
-                //     let x = this.camera.position.x;
-                //     let z = this.camera.position.z;
-                //     let width = this.mesh.geometry.parameters.width;
-                //     let depth = this.mesh.geometry.parameters.depth;
-                //     let minX = (x + width < this.limits.x.min);
-                //     let minZ = (z + depth < this.limits.z.min);
-                //     let maxX = (x - width > this.limits.x.max);
-                //     let maxZ = (z - depth > this.limits.x.max);
-
-                //     if (minX || minZ || maxX || maxZ) {
-                //         this.flags.canJump = false;
-                //     }
-                // }
-
-            // this.checkCollisions(scene);
-
-            this.lastPosition.x = this.camera.position.x;
-            this.lastPosition.y = this.camera.position.y;
-            this.lastPosition.z = this.camera.position.z;
-        }
-
-    }
-
-    animate() {
-        console.log('animate not defined', delta);
     }
 }

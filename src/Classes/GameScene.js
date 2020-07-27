@@ -1,45 +1,67 @@
 class GameScene {
-    constructor(ThreeScene, name) {
+    constructor(ThreeScene, CannonWorld, name) {
         this.ThreeScene = ThreeScene;
-        this.Objects = [];
+        this.CannonWorld = CannonWorld
         this.name = name;
         this.player = null;
-        this.objsMeshes = [];
         this.enemies = [];
-        this.environment = [];
-    }
-
-    addObject(obj) {
-        this.ThreeScene.add(obj.mesh);
-        // this.Objects.push(obj);
-        this.objsMeshes.push(obj.mesh);
+        this.environment = {
+            static: [],
+            kinematic: []
+        };
+        this.bullets = [];
     }
 
     addLight(light) {
         this.ThreeScene.add(light);
     }
 
-    addEnvironment(obj) {
-        this.environment.push(obj);
-        this.ThreeScene.add(obj);
+    addEnvironment(obj, bool) {
+        if (bool) {
+            this.environment.kinematic.push(obj);
+        } else {
+            this.environment.static.push(obj);
+        }
+        this.CannonWorld.addBody(obj.cannonBody);
+        this.ThreeScene.add(obj.mesh);
+    }
+
+    addEnemy(enem) {
+        this.enemies.push(enem)
+        this.CannonWorld.addBody(enem.cannonBody);
+        this.ThreeScene.add(enem.mesh);
     }
 
     addPlayer(player) {
         this.player = player;
-        // this.ThreeScene.add(player.mesh);
         this.ThreeScene.add(player.controls.getObject());
     }
 
-    update(delta) {
-        // this.Objects.forEach(obj => {
-        //     obj.update(delta, this);
-        // });
-        this.player.update(delta, this);
+    addBullet(bullet) {
+        this.bullets.push(bullet);
+        this.ThreeScene.add(bullet.mesh);
+        this.CannonWorld.addBody(bullet.cannonBody);
     }
 
-    animate() {
-        this.Objects.forEach(obj => {
-            obj.animate();
+    update(delta) {
+
+        this.CannonWorld.step(delta);
+        this.player.update(delta);
+        this.updatePos();
+    }
+
+    updatePos() {
+        this.enemies.forEach(enemy => {
+            enemy.updatePos();
+        });
+
+        this.bullets.forEach(bullet => {
+            // bullet.updatePos();
+            bullet.mesh.position.copy(bullet.cannonBody.position);
+        });
+
+        this.environment.kinematic.forEach(obj => {
+            obj.updatePos();
         });
     }
 }
