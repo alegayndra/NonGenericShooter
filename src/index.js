@@ -129,15 +129,6 @@ function createPlayer(camera, controls) {
 function createBoxes() {
     // Add boxes
     let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
-    // geometry = new THREE.PlaneGeometry( 300, 300, 50, 50 );
-    // console.log(geometry);
-    // geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
-
-    // mesh = new THREE.Mesh( geometry, material );
-    // mesh.castShadow = true;
-    // mesh.receiveShadow = true;
-    // let obj = new Entity(mesh, new CANNON.Body({ mass: 0 }));
-    // actualScene.addEnvironment( obj, false );
 
     let size = 100;
     var halfExtents = new CANNON.Vec3(size, 1, size);
@@ -154,27 +145,25 @@ function createBoxes() {
     boxMesh.castShadow = true;
     boxMesh.receiveShadow = true;
 
-    // size = 4;
-    // halfExtents = new CANNON.Vec3(size, size, size);
-    // boxShape = new CANNON.Box(halfExtents);
-    // boxGeometry = new THREE.BoxGeometry(halfExtents.x*2,halfExtents.y*2,halfExtents.z*2);
-    // for(var i=0; i<7; i++){
-    //     var x = (Math.random()-0.5)*20;
-    //     var y = 1 + (Math.random() + 1) * 5 ;
-    //     var z = (Math.random()-0.5)*20;
-    //     var boxBody = new CANNON.Body({ mass: 5 });
-    //     boxBody.addShape(boxShape);
-    //     var boxMesh = new THREE.Mesh( boxGeometry, material );
-    //     // world.addBody(boxBody);
-    //     let obj = new Entity(boxMesh, boxBody);
-    //     actualScene.addEnvironment(obj, true);
-    //     boxBody.position.set(x,y,z);
-    //     boxMesh.position.set(x,y,z);
-    //     boxMesh.castShadow = true;
-    //     boxMesh.receiveShadow = true;
-    //     // boxes.push(boxBody);
-    //     // boxMeshes.push(boxMesh);
-    // }
+    size = 4;
+    halfExtents = new CANNON.Vec3(size, size, size);
+    boxShape = new CANNON.Box(halfExtents);
+    boxGeometry = new THREE.BoxGeometry(halfExtents.x*2,halfExtents.y*2,halfExtents.z*2);
+    for(var i=0; i<7; i++){
+        var x = (Math.random()-0.5)*20;
+        var y = 1 + (Math.random() + 1) * 5 ;
+        var z = (Math.random()-0.5)*20;
+        var boxBody = new CANNON.Body({ mass: 5 });
+        boxBody.addShape(boxShape);
+        var boxMesh = new THREE.Mesh( boxGeometry, material );
+        // world.addBody(boxBody);
+        let obj = new Entity(boxMesh, boxBody);
+        actualScene.addEnvironment(obj, true);
+        boxBody.position.set(x,y,z);
+        boxMesh.position.set(x,y,z);
+        boxMesh.castShadow = true;
+        boxMesh.receiveShadow = true;
+    }
 }
 
 function initCannon() {

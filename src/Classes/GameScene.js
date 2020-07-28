@@ -100,8 +100,7 @@ class GameScene {
         });
 
         this.bullets.forEach(bullet => {
-            // bullet.updatePos();
-            bullet.mesh.position.copy(bullet.cannonBody.position);
+            bullet.updatePos();
         });
 
         this.environment.kinematic.forEach(obj => {
