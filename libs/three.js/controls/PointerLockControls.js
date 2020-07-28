@@ -25,7 +25,13 @@ var PointerLockControls = function ( camera, cannonBody ) {
 
     var canJump = false;
 
+    var running = false;
+    var crouching = false;
+
     var mouseClicked = false;
+
+    var lastW = 0;
+    var startedCrouch = 0;
 
     var contactNormal = new CANNON.Vec3(); // Normal in the contact, pointing *out* of whatever the player touched
     var upAxis = new CANNON.Vec3(0,1,0);
@@ -67,6 +73,10 @@ var PointerLockControls = function ( camera, cannonBody ) {
 
             case 38: // up
             case 87: // w
+                if (!moveForward) {
+                    if (!crouching && prevTime - lastW <= 200) running = true;
+                    lastW = prevTime; 
+                }
                 moveForward = true;
                 break;
 
@@ -90,6 +100,13 @@ var PointerLockControls = function ( camera, cannonBody ) {
                 }
                 canJump = false;
                 break;
+            case 16:
+                if (canJump) {
+                    crouching = true;
+                    running = false;
+                    startedCrouch = prevTime;
+                }
+                break;
         }
 
     };
@@ -100,6 +117,7 @@ var PointerLockControls = function ( camera, cannonBody ) {
 
             case 38: // up
             case 87: // w
+                running = false;
                 moveForward = false;
                 break;
 
@@ -117,7 +135,9 @@ var PointerLockControls = function ( camera, cannonBody ) {
             case 68: // d
                 moveRight = false;
                 break;
-
+            case 16:
+                crouching = false;
+                break;
         }
 
     };
@@ -186,8 +206,9 @@ var PointerLockControls = function ( camera, cannonBody ) {
         euler.order = "XYZ";
         quat.setFromEuler(euler);
         inputVelocity.applyQuaternion(quat);
-        //quat.multiplyVector3(inputVelocity);
-
+        // quat.multiplyVector3(inputVelocity);
+        // vector.applyQuaternion( quaternion )
+        
         // Add to the object
         velocity.x += inputVelocity.x;
         velocity.z += inputVelocity.z;

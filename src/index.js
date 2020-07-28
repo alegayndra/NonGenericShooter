@@ -10,8 +10,8 @@ let blocker, instructions;
 
 let prevTime = performance.now();
 
-let floorUrl = "../images/checker_large.gif";
-let cubeUrl = "../images/wooden_crate_2.png";
+let floorUrl = "./../images/checker_large.gif";
+let cubeUrl = "./../images/wooden_crate_2.png";
 
 // let conBody;
 
@@ -102,7 +102,11 @@ function createGameScene() {
     return gameScene;
 }
 
-let box;
+// let box;
+
+function createGun(mesh) {
+    return new Guns(mesh);
+}
 
 function createPlayer(camera, controls) {
     // let size = 2;
@@ -112,12 +116,12 @@ function createPlayer(camera, controls) {
     let cubeMap = new THREE.TextureLoader().load(cubeUrl);    
     let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
     // let box = new THREE.Mesh( boxGeometry, boxMaterial );
-    box = new THREE.Mesh( boxGeometry, boxMaterial );
+    let box = new THREE.Mesh( boxGeometry, boxMaterial );
 
     cubeMap = new THREE.TextureLoader().load('../images/lavatile.jpg');    
     boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
 
-    let player = new Player(box, new THREE.Mesh( boxGeometry, boxMaterial ), controls);
+    let player = new Player(box, createGun(new THREE.Mesh( boxGeometry, boxMaterial )), controls);
 
     return player;
 }
@@ -142,33 +146,35 @@ function createBoxes() {
 
     var boxBody = new CANNON.Body({ mass: 0.0 });
     boxBody.addShape(boxShape);
+    boxBody.position.y = -5;
     var boxMesh = new THREE.Mesh( boxGeometry, material );
+    boxMesh.position.y = -5
     let obj = new Entity(boxMesh, boxBody);
     actualScene.addEnvironment(obj, false);
     boxMesh.castShadow = true;
     boxMesh.receiveShadow = true;
 
-    size = 4;
-    halfExtents = new CANNON.Vec3(size, size, size);
-    boxShape = new CANNON.Box(halfExtents);
-    boxGeometry = new THREE.BoxGeometry(halfExtents.x*2,halfExtents.y*2,halfExtents.z*2);
-    for(var i=0; i<7; i++){
-        var x = (Math.random()-0.5)*20;
-        var y = 1 + (Math.random() + 1) * 5 ;
-        var z = (Math.random()-0.5)*20;
-        var boxBody = new CANNON.Body({ mass: 5 });
-        boxBody.addShape(boxShape);
-        var boxMesh = new THREE.Mesh( boxGeometry, material );
-        // world.addBody(boxBody);
-        let obj = new Entity(boxMesh, boxBody);
-        actualScene.addEnvironment(obj, true);
-        boxBody.position.set(x,y,z);
-        boxMesh.position.set(x,y,z);
-        boxMesh.castShadow = true;
-        boxMesh.receiveShadow = true;
-        // boxes.push(boxBody);
-        // boxMeshes.push(boxMesh);
-    }
+    // size = 4;
+    // halfExtents = new CANNON.Vec3(size, size, size);
+    // boxShape = new CANNON.Box(halfExtents);
+    // boxGeometry = new THREE.BoxGeometry(halfExtents.x*2,halfExtents.y*2,halfExtents.z*2);
+    // for(var i=0; i<7; i++){
+    //     var x = (Math.random()-0.5)*20;
+    //     var y = 1 + (Math.random() + 1) * 5 ;
+    //     var z = (Math.random()-0.5)*20;
+    //     var boxBody = new CANNON.Body({ mass: 5 });
+    //     boxBody.addShape(boxShape);
+    //     var boxMesh = new THREE.Mesh( boxGeometry, material );
+    //     // world.addBody(boxBody);
+    //     let obj = new Entity(boxMesh, boxBody);
+    //     actualScene.addEnvironment(obj, true);
+    //     boxBody.position.set(x,y,z);
+    //     boxMesh.position.set(x,y,z);
+    //     boxMesh.castShadow = true;
+    //     boxMesh.receiveShadow = true;
+    //     // boxes.push(boxBody);
+    //     // boxMeshes.push(boxMesh);
+    // }
 }
 
 function initCannon() {
