@@ -71,25 +71,27 @@ class GameScene {
     }
 
     eliminateObjects() {
-        this.objectsToEliminate.forEach(pos => {
-            this.disposeObj(pos.obj);
-            switch(pos.type) {
-                case 'bullet':
-                    this.bullets = this.bullets.filter(arr => pos.obj !== arr);
-                    break;
-                case 'enemy':
-                    this.enemies = this.enemies.filter(arr => pos.obj !== arr);
-                    break;
-                case 'kinematic':
-                    this.environment.kinematic = this.environment.kinematic.filter(arr => pos.obj !== arr);
-                    break;
-                case 'static':
-                    this.environment.static = this.environment.static.filter(arr => pos.obj !== arr);
-                    break;
-            }
-        });
-        renderer.renderLists.dispose();
-        this.objectsToEliminate = [];
+        if (this.objectsToEliminate.length > 0) {
+            this.objectsToEliminate.forEach(pos => {
+                this.disposeObj(pos.obj);
+                switch(pos.type) {
+                    case 'bullet':
+                        this.bullets = this.bullets.filter(arr => pos.obj !== arr);
+                        break;
+                    case 'enemy':
+                        this.enemies = this.enemies.filter(arr => pos.obj !== arr);
+                        break;
+                    case 'kinematic':
+                        this.environment.kinematic = this.environment.kinematic.filter(arr => pos.obj !== arr);
+                        break;
+                    case 'static':
+                        this.environment.static = this.environment.static.filter(arr => pos.obj !== arr);
+                        break;
+                }
+            });
+            renderer.renderLists.dispose();
+            this.objectsToEliminate = [];
+        }
     }
 
     updatePos() {
