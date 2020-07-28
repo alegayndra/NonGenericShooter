@@ -5,11 +5,11 @@ class Player {
         this.controls = controls;
         this.raycaster = new THREE.Raycaster();
 
-        this.weapon.position.x = 4;
-        this.weapon.position.y = -3;
-        this.weapon.position.z = -4;
+        this.weapon.mesh.position.x = 4;
+        this.weapon.mesh.position.y = -3;
+        this.weapon.mesh.position.z = -4;
 
-        this.controls.getCamera().add(this.weapon);
+        this.controls.getCamera().add(this.weapon.mesh);
         this.controls.getCamera().add(this.mesh);
 
         this.raycaster.camera = controls.getCamera();
@@ -112,57 +112,20 @@ class Player {
         //             break;
         //     }
         // }, false );
-
-        // this.controls.domElement.addEventListener('mousedown', (event) => {
-        //     this.flags.mouseClicked = true;
-        // });
-
-        // this.controls.domElement.addEventListener('mouseup', (event) => {
-        //     this.flags.mouseClicked = false;
-        // });
     }
 
     shoot(delta) {
         if (this.controls.getMouseClicked() && !this.flags.shooting) {
             this.flags.shooting = true;
-            var shootVelo = 250;
-            var ballShape = new CANNON.Sphere(1);
-            var ballGeometry = new THREE.SphereGeometry(ballShape.radius, 32, 32);
-            var shootDirection = this.raycaster.ray.direction;
-
-            let material = new THREE.MeshPhongMaterial( { color: 0xffffff } );
-
-            var x = this.controls.getObject().position.x;
-            var y = this.controls.getObject().position.y;
-            var z = this.controls.getObject().position.z;
-            var ballBody = new CANNON.Body({ mass: 0.1 });
-            ballBody.addShape(ballShape);
-            var ballMesh = new THREE.Mesh( ballGeometry, material );
-            let bullet = {
-                mesh: ballMesh,
-                cannonBody: ballBody
-            }
-            actualScene.addBullet(bullet);
-            ballMesh.castShadow = true;
-            ballMesh.receiveShadow = true;
-
-            // getShootDir(shootDirection);
-            ballBody.velocity.set(shootDirection.x * shootVelo, shootDirection.y * shootVelo, shootDirection.z * shootVelo);
-
-            // Move the ball outside the player sphere
-            x += shootDirection.x * (1.02 + ballShape.radius);
-            y += shootDirection.y * (1.02 + ballShape.radius);
-            z += shootDirection.z * (1.02 + ballShape.radius);
-            ballBody.position.set(x,y,z);
-            ballMesh.position.set(x,y,z);
+            this.weapon.shoot(this.raycaster, this.controls);
         }
 
         if (this.flags.shooting) {
 
             this.frameAnimation += 12 * delta;
-            this.weapon.rotation.x = this.frameAnimation;
+            this.weapon.mesh.rotation.x = this.frameAnimation;
             if (this.frameAnimation >= Math.PI * 2) {
-                this.weapon.rotation.x = 0;
+                this.weapon.mesh.rotation.x = 0;
                 this.frameAnimation = 0;
                 this.flags.shooting = false;
             }
