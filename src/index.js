@@ -10,8 +10,8 @@ let blocker, instructions;
 
 let prevTime = performance.now();
 
-let floorUrl = "./../images/checker_large.gif";
-let cubeUrl = "./../images/wooden_crate_2.png";
+// let floorUrl = "./../images/checker_large.gif";
+let cubeUrl = "./images/wooden_crate_2.png";
 
 // let conBody;
 
@@ -118,7 +118,7 @@ function createPlayer(camera, controls) {
     // let box = new THREE.Mesh( boxGeometry, boxMaterial );
     let box = new THREE.Mesh( boxGeometry, boxMaterial );
 
-    cubeMap = new THREE.TextureLoader().load('../images/lavatile.jpg');    
+    cubeMap = new THREE.TextureLoader().load('./images/lavatile.jpg');    
     boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
 
     let player = new Player(box, createGun(new THREE.Mesh( boxGeometry, boxMaterial )), controls);
