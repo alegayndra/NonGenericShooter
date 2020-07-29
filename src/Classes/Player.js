@@ -5,9 +5,11 @@ class Player {
         this.controls = controls;
         this.raycaster = new THREE.Raycaster();
 
-        this.weapon.mesh.position.x = 4;
+        this.weapon.mesh.position.x = 3;
         this.weapon.mesh.position.y = -3;
-        this.weapon.mesh.position.z = -4;
+        this.weapon.mesh.position.z = -6;
+
+        this.weapon.mesh.rotation.y = Math.PI / 2;
 
         this.controls.getCamera().add(this.weapon.mesh);
         this.controls.getCamera().add(this.mesh);
@@ -19,99 +21,6 @@ class Player {
         }
 
         this.frameAnimation = 0;
-
-
-        // this.raycaster = new THREE.Raycaster();//THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 15 );
-        // console.log(this.ray);
-
-        // this.flags = {
-        //     moveForward: false,
-        //     moveBackward: false,
-        //     moveLeft: false,
-        //     moveRight: false,
-        //     canJump: false,
-        //     crouching: false,
-        //     running: false,
-        //     mousePressed: false,
-        //     shooting: false,
-        //     mouseClicked: false 
-        // }
-        // this.lastW = 0;
-        // this.frameAnimation = 0;
-        // this.lastPosition = new THREE.Vector3(this.camera.x, this.camera.y, this.camera.z);        
-
-        // this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 15 );
-
-        // this.controls.domElement.addEventListener( 'keydown', (event) => {
-        //     // console.log(event.keyCode, event.key);
-        //     switch ( event.keyCode ) {
-
-        //         case 38: // up
-        //         case 87: // w
-        //             if (!this.flags.moveForward) {
-        //                 if (!this.flags.crouching && prevTime - this.lastW <= 200) this.flags.running = true;
-        //                 this.lastW = prevTime; 
-        //             }
-        //             this.flags.moveForward = true;
-        //             break;
-        
-        //         case 37: // left
-        //         case 65: // a
-        //             this.flags.moveLeft = true; 
-        //             break;
-        
-        //         case 40: // down
-        //         case 83: // s
-        //             this.flags.moveBackward = true;
-        //             break;
-        
-        //         case 39: // right
-        //         case 68: // d
-        //             this.flags.moveRight = true;
-        //             break;
-        
-        //         case 32: // space
-        //             if ( this.flags.canJump === true ) this.velocity.y += 180;
-        //             this.flags.canJump = false;
-        //             break;
-        //         case 16:
-        //             event.preventDefault();
-        //             if (this.flags.canJump) {
-        //                 this.flags.crouching = true;
-        //                 this.flags.running = false;
-        //             }
-        //             break;
-        //     }
-        // }, false );
-
-        // this.controls.domElement.addEventListener( 'keyup', (event) => {
-        //     switch( event.keyCode ) {
-
-        //         case 38: // up
-        //         case 87: // w
-        //             this.flags.running = false;
-        //             this.flags.moveForward = false;
-        //             break;
-        
-        //         case 37: // left
-        //         case 65: // a
-        //             this.flags.moveLeft = false;
-        //             break;
-        
-        //         case 40: // down
-        //         case 83: // s
-        //             this.flags.moveBackward = false;
-        //             break;
-        
-        //         case 39: // right
-        //         case 68: // d
-        //             this.flags.moveRight = false;
-        //             break;
-        //         case 16:
-        //             this.flags.crouching = false;
-        //             break;
-        //     }
-        // }, false );
     }
 
     shoot(delta) {

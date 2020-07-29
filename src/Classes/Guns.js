@@ -9,9 +9,9 @@ class Guns {
         let shootDirection = raycaster.ray.direction;
     
         let size = 1;
+        let halfExtents = new CANNON.Vec3(size / 2, size / 2, size);
 
         let bulletShape = new CANNON.Box(halfExtents);
-        let halfExtents = new CANNON.Vec3(size / 2, size / 2, size);
         let bulletBody = new CANNON.Body({ mass: 0.00000001 });
         bulletBody.addShape(bulletShape);
         

@@ -1,19 +1,41 @@
 let camera, renderer, controls;
 let actualScene, gameScenes = [];
 
-// let world;
-// let boxes = [], boxMeshes = [];
-
-// let raycaster;
-
 let blocker, instructions;
 
 let prevTime = performance.now();
 
-// let floorUrl = "./../images/checker_large.gif";
 let cubeUrl = "./images/wooden_crate_2.png";
 
-// let conBody;
+function loadGLTFModel(path, obj) {
+    // Instantiate a loader
+    var loader = new THREE.GLTFLoader();
+
+    // Load a glTF resource
+    loader.load(
+        // resource URL
+        path,
+        // called when the resource is loaded
+        function ( gltf ) {
+            const root = gltf.scene;
+            obj.mesh.add( root );
+
+            // gltf.animations; // Array<THREE.AnimationClip>
+            // gltf.scene; // THREE.Group
+            // gltf.scenes; // Array<THREE.Group>
+            // gltf.cameras; // Array<THREE.Camera>
+            // gltf.asset; // Object
+        },
+        // called while loading is progressing
+        function ( xhr ) {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+        // called when loading has errors
+        (error) => {
+            console.log( 'An error happened' );
+        }
+    );
+}
 
 function initPointerLock() {
     blocker = document.getElementById( 'blocker' );
@@ -121,7 +143,9 @@ function createPlayer(camera, controls) {
     cubeMap = new THREE.TextureLoader().load('./images/lavatile.jpg');    
     boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
 
-    let player = new Player(box, createGun(new THREE.Mesh( boxGeometry, boxMaterial )), controls);
+    let player = new Player(box, createGun(new THREE.Object3D()), controls);
+
+    loadGLTFModel('./models/gun.glb', player.weapon);
 
     return player;
 }
@@ -198,22 +222,6 @@ function initCannon() {
     // We must add the contact materials to the world
     world.addContactMaterial(physicsContactMaterial);
 
-    // // Create a sphere
-    // var mass = 5, radius = 1.3;
-    // sphereShape = new CANNON.Sphere(radius);
-    // sphereBody = new CANNON.Body({ mass: mass });
-    // sphereBody.addShape(sphereShape);
-    // sphereBody.position.set(0,5,0);
-    // sphereBody.linearDamping = 0.9;
-    // world.addBody(sphereBody);
-
-    // Create a plane
-    // var groundShape = new CANNON.Plane();
-    // var groundBody = new CANNON.Body({ mass: 0 });
-    // groundBody.addShape(groundShape);
-    // groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
-    // world.addBody(groundBody);
-
     return world;
 }
 
@@ -233,12 +241,6 @@ function createScene(canvas)  {
     let scene = createGameScene();
     gameScenes.push(scene);
     actualScene = gameScenes[0];
-
-    // A light source positioned directly above the scene, with color fading from the sky color to the ground color. 
-    // HemisphereLight( skyColor, groundColor, intensity )
-    // skyColor - (optional) hexadecimal color of the sky. Default is 0xffffff.
-    // groundColor - (optional) hexadecimal color of the ground. Default is 0xffffff.
-    // intensity - (optional) numeric value of the light's strength/intensity. Default is 1.
 
     let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.2 );
     light.position.set( 0.5, 1, 0.75 );
@@ -260,60 +262,6 @@ function createScene(canvas)  {
         //light.shadowCameraVisible = true;
     }
     actualScene.addLight( light );
-
-    // Raycaster( origin, direction, near, far )
-    // origin — The origin vector where the ray casts from.
-    // direction — The direction vector that gives direction to the ray. Should be normalized.
-    // near — All results returned are further away than near. Near can't be negative. Default value is 0.
-    // far — All results returned are closer then far. Far can't be lower then near . Default value is Infinity.
-    // raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 15 );
-
-    // floor
-
-    // let map = new THREE.TextureLoader().load(floorUrl);
-    // map.wrapS = map.wrapT = THREE.RepeatWrapping;
-    // map.repeat.set(8, 8);
-
-    // let floorGeometry = new THREE.BoxGeometry( 100, 100, 3 );
-    // let floor = new THREE.Mesh(floorGeometry, new THREE.MeshPhongMaterial({color:0xffffff, map:map, side:THREE.DoubleSide}));
-    // floor.rotation.x = -Math.PI / 2;
-    // actualScene.addEnvironment( floor );
-
-    // objects
-
-    // let sizeBox = 10;
-    // let boxGeometry = new THREE.BoxGeometry( sizeBox, sizeBox, sizeBox );
-    // let cubeMap = new THREE.TextureLoader().load(cubeUrl);
-    // let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
-    // let box = new THREE.Mesh( boxGeometry, boxMaterial );
-    // box.position.z = -10;
-    // box.position.x = 0;
-    // box.position.y = 25;
-    // actualScene.addEnvironment(box);
-    // cubeBox = new THREE.Mesh( boxGeometry, boxMaterial );
-    // cubeBox.position.x = -10;
-    // cubeBox.position.z = -10;
-    // cubeBox.position.y = 5;
-    // actualScene.addEnvironment(cubeBox);
-
-    // for ( let i = 0; i < 50; i ++ ) 
-    // {
-    //     let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
-
-    //     let box = new THREE.Mesh( boxGeometry, boxMaterial );
-    //     box.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
-    //     box.position.y = Math.floor( Math.random() * 3 ) * 20 + 10;
-    //     box.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
-
-    //     // let obj = {
-    //     //     mesh: box,
-    //     //     update: (delta) => {console.log('undefkinedasda')}
-    //     // }
-
-    //     actualScene.addEnvironment(box);
-    // }
-
-    
 
     let controls = initPointerLock();
     let player = createPlayer(camera, controls);
