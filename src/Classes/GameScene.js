@@ -56,14 +56,24 @@ class GameScene {
         this.updatePos();
     }
 
+    disposeGeometries(child) {
+        if (child.geometry) {
+            child.geometry.dispose();
+        }
+        if (child.material) {
+            child.material.dispose();
+        }
+        child.children.forEach(c => {
+            this.disposeGeometries(c);
+        });
+    }
+
     disposeObj(obj) {
         const object = this.ThreeScene.getObjectByProperty( 'uuid', obj.mesh.uuid );
 
-        // console.log(object);
-
         if (object) {
-            object.geometry.dispose();
-            object.material.dispose();
+            this.disposeGeometries(object);
+            
             this.ThreeScene.remove(object);
             this.CannonWorld.remove(obj.cannonBody);
         }

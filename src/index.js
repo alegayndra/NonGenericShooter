@@ -6,6 +6,9 @@ let blocker, instructions;
 let prevTime = performance.now();
 
 let cubeUrl = "./images/wooden_crate_2.png";
+let bulletUrl = './models/bullet.glb';
+
+let bulletMesh = null;
 
 function loadGLTFModel(path, obj) {
     // Instantiate a loader
@@ -17,9 +20,10 @@ function loadGLTFModel(path, obj) {
         path,
         // called when the resource is loaded
         function ( gltf ) {
-            const root = gltf.scene;
-            obj.mesh.add( root );
-
+            let num = gltf.scene.children.length;
+            for (let i = 0; i < num; i++) {
+                obj.mesh.add( gltf.scene.children[0] );
+            }
             // gltf.animations; // Array<THREE.AnimationClip>
             // gltf.scene; // THREE.Group
             // gltf.scenes; // Array<THREE.Group>
@@ -101,8 +105,6 @@ function initPointerLock() {
     }
 
     let mass = 10, radius = 10;
-    let halfExtents = new CANNON.Vec3(1,1,1);
-    // let boxShape = new CANNON.Box(halfExtents);
     let boxShape = new CANNON.Sphere(radius);
     conBody = new CANNON.Body({ mass: mass });
     conBody.addShape(boxShape);
@@ -113,7 +115,29 @@ function initPointerLock() {
     controls = new PointerLockControls( camera, conBody );
 
     return controls;
-    // actualScene.addObject( controls.getObject() );
+}
+
+function loadBulletModel() {
+    let size = 1;
+    let halfExtents = new CANNON.Vec3(size / 2, size / 2, size);
+
+    let bulletShape = new CANNON.Box(halfExtents);
+    let bulletBody = new CANNON.Body({ mass: 0 });
+    bulletBody.addShape(bulletShape);
+
+    bulletMesh = new Bullets(new THREE.Object3D(), bulletBody);
+
+    let pos = 30;
+    bulletMesh.mesh.position.z = pos;
+    bulletBody.position.z = pos;
+    bulletMesh.mesh.castShadow = true;
+    bulletMesh.mesh.receiveShadow = true;  
+
+    loadGLTFModel(bulletUrl, bulletMesh);
+
+    // actualScene.addBullet(bulletMesh);
+
+    bulletMesh.mesh.rotation.y = Math.PI / 2;
 }
 
 function createGameScene() {
@@ -241,6 +265,8 @@ function createScene(canvas)  {
     let scene = createGameScene();
     gameScenes.push(scene);
     actualScene = gameScenes[0];
+
+    loadBulletModel();
 
     let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.2 );
     light.position.set( 0.5, 1, 0.75 );

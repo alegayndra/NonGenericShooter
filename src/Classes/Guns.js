@@ -16,15 +16,19 @@ class Guns {
         bulletBody.addShape(bulletShape);
         
         
-        let bulletGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
-        let material = new THREE.MeshPhongMaterial( { color: 0xffffff } );
-        let bulletMesh = new THREE.Mesh( bulletGeometry, material );
+        // let bulletGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
+        // let material = new THREE.MeshPhongMaterial( { color: 0xffffff } );
+        // let bulletMesh = new THREE.Mesh( bulletGeometry, material );
+
+        let bullet = new Bullets(new THREE.Object3D(), bulletBody);
+
+        bullet.copy(bulletMesh);
         
-        bulletMesh.castShadow = true;
-        bulletMesh.receiveShadow = true;        
+        bullet.mesh.castShadow = true;
+        bullet.mesh.receiveShadow = true;        
 
         bulletBody.quaternion.copy(controls.getObject().quaternion);
-        bulletMesh.applyQuaternion(controls.getObject().quaternion);
+        bullet.mesh.applyQuaternion(controls.getObject().quaternion);
 
         // getShootDir(shootDirection);
         bulletBody.velocity.set(shootDirection.x * shootVelo, shootDirection.y * shootVelo, shootDirection.z * shootVelo);
@@ -35,13 +39,12 @@ class Guns {
         let y = controls.getObject().position.y + shootDirection.y * (r);
         let z = controls.getObject().position.z + shootDirection.z * (r);
         bulletBody.position.set(x, y, z);
-        bulletMesh.position.set(x, y, z);
+        bullet.mesh.position.set(x, y, z);
 
         bulletBody.addEventListener("collide",function(e){
             actualScene.objectsToEliminate.push({obj: bullet, type: 'bullet'});
         });
 
-        let bullet = new Bullets(bulletMesh, bulletBody);
         actualScene.addBullet(bullet);
     }
 }
