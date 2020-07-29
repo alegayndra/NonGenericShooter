@@ -48,12 +48,16 @@ class GameScene {
 
     update(delta) {
 
-        this.CannonWorld.step(delta);
-
         this.eliminateObjects();
+
+        this.CannonWorld.step(delta);
 
         this.player.update(delta);
         this.updatePos();
+
+        this.enemies.forEach(enemy => {
+            enemy.update(delta);
+        });
     }
 
     disposeGeometries(child) {

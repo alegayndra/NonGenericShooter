@@ -140,6 +140,45 @@ function loadBulletModel() {
     bulletMesh.mesh.rotation.y = Math.PI / 2;
 }
 
+function createBullet(shootVelo, shootDirection, object, r) {
+    
+    let size = 1;
+    let halfExtents = new CANNON.Vec3(size / 2, size / 2, size);
+
+    let bulletShape = new CANNON.Box(halfExtents);
+    let bulletBody = new CANNON.Body({ mass: 0.00000001 });
+    bulletBody.addShape(bulletShape);
+
+    let bullet = new Bullets(new THREE.Object3D(), bulletBody);
+
+    bullet.copy(bulletMesh);
+    
+    bullet.mesh.castShadow = true;
+    bullet.mesh.receiveShadow = true;        
+
+    bulletBody.quaternion.copy (object.quaternion);
+    bullet.mesh.applyQuaternion(object.quaternion);
+
+    bulletBody.velocity.set(shootDirection.x * shootVelo, shootDirection.y * shootVelo, shootDirection.z * shootVelo);
+
+    // Move the ball outside the player sphere
+
+    let x = object.position.x + shootDirection.x * (r) + 0.1;
+    let y = object.position.y + shootDirection.y * (r) + 0.1;
+    let z = object.position.z + shootDirection.z * (r) + 0.1;
+    bulletBody.position.set(x, y, z);
+    bullet.mesh.position.set(x, y, z);
+
+    console.log(bullet.cannonBody.position);
+
+    bulletBody.addEventListener("collide",function(e){
+        // actualScene.objectsToEliminate.push({obj: bullet, type: 'bullet'});
+        console.log('collision', bullet.cannonBody.position);
+    });
+
+    actualScene.addBullet(bullet);
+}
+
 function createGameScene() {
     let scene = new THREE.Scene();
     scene.background = new THREE.Color( 0xffffff );
@@ -147,8 +186,6 @@ function createGameScene() {
     let gameScene = new GameScene(scene, initCannon(), 'prueba');
     return gameScene;
 }
-
-// let box;
 
 function createGun(mesh) {
     return new Guns(mesh);
