@@ -31,7 +31,7 @@ class Player {
 
         if (this.flags.shooting) {
 
-            this.frameAnimation += 12 * delta;
+            this.frameAnimation += 20 * delta;
             this.weapon.mesh.rotation.x = this.frameAnimation;
             if (this.frameAnimation >= Math.PI * 2) {
                 this.weapon.mesh.rotation.x = 0;

@@ -157,24 +157,25 @@ function createGun(mesh) {
 function createEnemy(type) {
 
     // Add boxes
-    let material = new THREE.MeshPhongMaterial( { color: 0xffdddd } );
+    let material = new THREE.MeshPhongMaterial( { color: 0xff9999 } );
     let enemyShape;
     
     let enemyGeometry;
     
     let mass;
 
-    let y = 0;
+    let y = -4;
 
     switch(type) {
         case 'roller':
             mass = 1;
-            enemyShape = new CANNON.Sphere(10);
-            enemyGeometry = new THREE.SphereGeometry(5, 32, 32 );
+            let radius = 5
+            enemyShape = new CANNON.Sphere(radius);
+            enemyGeometry = new THREE.SphereGeometry(radius, 32, 32 );
             break;
         case 'shooter':
             mass = 0
-            y = 5;
+            y = 9;
             let size = 4;
             let halfExtents = new CANNON.Vec3(size, size, size);
             enemyShape = new CANNON.Box(halfExtents);
