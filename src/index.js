@@ -110,6 +110,9 @@ function initPointerLock() {
     conBody.addShape(boxShape);
     conBody.position.set(0,5,0);
     conBody.linearDamping = 0.9;
+
+    conBody.position.y = 3;
+
     actualScene.CannonWorld.addBody(conBody);
 
     controls = new PointerLockControls( camera, conBody );
