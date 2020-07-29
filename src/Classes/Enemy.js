@@ -4,6 +4,13 @@ class Enemy extends Entity {
 
         this.type = type;
 
+        this.velocity = 50;
+
+        this.dir = {
+            x: 0,
+            z: 0,
+        }
+
         this.timeElapsed = 0;
         this.direction = new THREE.Ray();
         this.direction.origin.set(cannonBody.position.x, cannonBody.position.y, cannonBody.position.z);
@@ -13,8 +20,11 @@ class Enemy extends Entity {
         createBullet(100, this.direction.direction, this.mesh, this.cannonBody.boundingRadius + 1);
     }
 
-    followPlayer() {
-
+    followPlayer(delta) {
+        let factorX = (actualScene.player.controls.getObject().position.x - this.cannonBody.position.x);
+        let factorZ = (actualScene.player.controls.getObject().position.z - this.cannonBody.position.z);
+        this.cannonBody.velocity.x += this.velocity * delta * factorX; 
+        this.cannonBody.velocity.z += this.velocity * delta * factorZ; 
     }
 
     updateDirection() {
@@ -34,7 +44,7 @@ class Enemy extends Entity {
             this.timeElapsed -= time;
             switch(this.type) {
                 case 'roller':
-                    this.followPlayer();
+                    this.followPlayer(delta);
                     break;
                 case 'shooter':
                     this.shootPlayer();
