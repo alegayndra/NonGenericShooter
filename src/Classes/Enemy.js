@@ -1,4 +1,4 @@
-class Enemey extends Entity {
+class Enemy extends Entity {
     constructor(mesh, cannonBody, type) {
         super(mesh, cannonBody);
 
@@ -10,8 +10,7 @@ class Enemey extends Entity {
     }
 
     shootPlayer() {
-        createBullet(100, this.direction.direction, this.cannonBody, this.cannonBody.boundingRadius);
-        // console.log('player shot');
+        createBullet(100, this.direction.direction, this.mesh, this.cannonBody.boundingRadius + 1);
     }
 
     followPlayer() {

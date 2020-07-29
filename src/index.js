@@ -142,7 +142,7 @@ function loadBulletModel() {
 
 function createBullet(shootVelo, shootDirection, object, r) {
     
-    let size = 1;
+    let size = 0.3;
     let halfExtents = new CANNON.Vec3(size / 2, size / 2, size);
 
     let bulletShape = new CANNON.Box(halfExtents);
@@ -163,20 +163,19 @@ function createBullet(shootVelo, shootDirection, object, r) {
 
     // Move the ball outside the player sphere
 
-    let x = object.position.x + shootDirection.x * (r) + 0.1;
-    let y = object.position.y + shootDirection.y * (r) + 0.1;
-    let z = object.position.z + shootDirection.z * (r) + 0.1;
+    let x = object.position.x + shootDirection.x * (r + 0.5);
+    let y = object.position.y + shootDirection.y * (r + 0.5);
+    let z = object.position.z + shootDirection.z * (r + 0.5);
     bulletBody.position.set(x, y, z);
     bullet.mesh.position.set(x, y, z);
 
-    console.log(bullet.cannonBody.position);
-
     bulletBody.addEventListener("collide",function(e){
-        // actualScene.objectsToEliminate.push({obj: bullet, type: 'bullet'});
-        console.log('collision', bullet.cannonBody.position);
+        actualScene.objectsToEliminate.push({obj: bullet, type: 'bullet'});
     });
 
     actualScene.addBullet(bullet);
+
+    return bullet;
 }
 
 function createGameScene() {
@@ -212,7 +211,7 @@ function createEnemy(type) {
             break;
         case 'shooter':
             mass = 0
-            y = 9;
+            y = 15;
             let size = 4;
             let halfExtents = new CANNON.Vec3(size, size, size);
             enemyShape = new CANNON.Box(halfExtents);
@@ -234,7 +233,7 @@ function createEnemy(type) {
     enemyMesh.position.set(x, y, z);
     enemyBody.position.set(x, y, z);
 
-    let enemy = new Enemey(enemyMesh, enemyBody, type);
+    let enemy = new Enemy(enemyMesh, enemyBody, type);
 
     actualScene.addEnemy(enemy);
 
@@ -282,28 +281,28 @@ function createBoxes() {
     boxMesh.position.y = -5
     let obj = new Entity(boxMesh, boxBody);
     actualScene.addEnvironment(obj, false);
-    boxMesh.castShadow = true;
+    // boxMesh.castShadow = true;
     boxMesh.receiveShadow = true;
 
     size = 4;
     halfExtents = new CANNON.Vec3(size, size, size);
     boxShape = new CANNON.Box(halfExtents);
     boxGeometry = new THREE.BoxGeometry(halfExtents.x*2,halfExtents.y*2,halfExtents.z*2);
-    for(var i=0; i<7; i++){
-        var x = (Math.random()-0.5)*20;
-        var y = 1 + (Math.random() + 1) * 5 ;
-        var z = (Math.random()-0.5)*20;
-        var boxBody = new CANNON.Body({ mass: 5 });
-        boxBody.addShape(boxShape);
-        var boxMesh = new THREE.Mesh( boxGeometry, material );
-        // world.addBody(boxBody);
-        let obj = new Entity(boxMesh, boxBody);
-        actualScene.addEnvironment(obj, true);
-        boxBody.position.set(x,y,z);
-        boxMesh.position.set(x,y,z);
-        boxMesh.castShadow = true;
-        boxMesh.receiveShadow = true;
-    }
+    // for(var i=0; i<7; i++){
+    //     var x = (Math.random()-0.5)*20;
+    //     var y = 1 + (Math.random() + 1) * 5 ;
+    //     var z = (Math.random()-0.5)*20;
+    //     var boxBody = new CANNON.Body({ mass: 5 });
+    //     boxBody.addShape(boxShape);
+    //     var boxMesh = new THREE.Mesh( boxGeometry, material );
+    //     // world.addBody(boxBody);
+    //     let obj = new Entity(boxMesh, boxBody);
+    //     actualScene.addEnvironment(obj, true);
+    //     boxBody.position.set(x,y,z);
+    //     boxMesh.position.set(x,y,z);
+    //     boxMesh.castShadow = true;
+    //     // boxMesh.receiveShadow = true;
+    // }
 }
 
 function initCannon() {
@@ -368,12 +367,12 @@ function createScene(canvas)  {
     light.position.set( 0, 30, 10 );
     light.target.position.set( 0, 0, 0 );
     if(true){
-        let SHADOW_MAP_WIDTH = 2048;
-        let SHADOW_MAP_HEIGHT = 2048;
+        let SHADOW_MAP_WIDTH = 256;
+        let SHADOW_MAP_HEIGHT = 256;
         light.castShadow = true;
         light.shadow.camera.near = 1;
         light.shadow.camera.far = 200;
-        light.shadow.camera.fov = 45;
+        light.shadow.camera.fov = 90;
         light.shadow.mapSize.width = SHADOW_MAP_WIDTH;
         light.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
 
@@ -397,7 +396,7 @@ function createScene(canvas)  {
 
     actualScene.addPlayer(player);
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 1; i++) {
         createEnemy(((i % 2) ? 'roller' : 'shooter'));
     }
 }
