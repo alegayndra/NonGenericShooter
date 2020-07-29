@@ -48,22 +48,36 @@ class GameScene {
 
     update(delta) {
 
-        this.CannonWorld.step(delta);
-
         this.eliminateObjects();
+
+        this.CannonWorld.step(delta);
 
         this.player.update(delta);
         this.updatePos();
+
+        this.enemies.forEach(enemy => {
+            enemy.update(delta);
+        });
+    }
+
+    disposeGeometries(child) {
+        if (child.geometry) {
+            child.geometry.dispose();
+        }
+        if (child.material) {
+            child.material.dispose();
+        }
+        child.children.forEach(c => {
+            this.disposeGeometries(c);
+        });
     }
 
     disposeObj(obj) {
         const object = this.ThreeScene.getObjectByProperty( 'uuid', obj.mesh.uuid );
 
-        // console.log(object);
-
         if (object) {
-            object.geometry.dispose();
-            object.material.dispose();
+            this.disposeGeometries(object);
+            
             this.ThreeScene.remove(object);
             this.CannonWorld.remove(obj.cannonBody);
         }
@@ -100,8 +114,7 @@ class GameScene {
         });
 
         this.bullets.forEach(bullet => {
-            // bullet.updatePos();
-            bullet.mesh.position.copy(bullet.cannonBody.position);
+            bullet.updatePos();
         });
 
         this.environment.kinematic.forEach(obj => {
