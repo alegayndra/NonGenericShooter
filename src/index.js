@@ -154,6 +154,55 @@ function createGun(mesh) {
     return new Guns(mesh);
 }
 
+function createEnemy(type) {
+
+    // Add boxes
+    let material = new THREE.MeshPhongMaterial( { color: 0xffdddd } );
+    let enemyShape;
+    
+    let enemyGeometry;
+    
+    let mass;
+
+    let y = 0;
+
+    switch(type) {
+        case 'roller':
+            mass = 1;
+            enemyShape = new CANNON.Sphere(10);
+            enemyGeometry = new THREE.SphereGeometry(5, 32, 32 );
+            break;
+        case 'shooter':
+            mass = 0
+            y = 5;
+            let size = 4;
+            let halfExtents = new CANNON.Vec3(size, size, size);
+            enemyShape = new CANNON.Box(halfExtents);
+            enemyGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
+            break;
+    }
+
+    let enemyBody = new CANNON.Body({mass: mass});
+    enemyBody.addShape(enemyShape);
+    
+    let enemyMesh = new THREE.Mesh(enemyGeometry, material);
+
+    enemyMesh.castShadow = true;
+    enemyMesh.receiveShadow = true;
+
+    let x = (Math.random() * 50) - 25;
+    let z = (Math.random() * 50) - 25;
+
+    enemyMesh.position.set(x, y, z);
+    enemyBody.position.set(x, y, z);
+
+    let enemy = new Enemey(enemyMesh, enemyBody, type);
+
+    actualScene.addEnemy(enemy);
+
+    return enemy;
+}
+
 function createPlayer(camera, controls) {
     // let size = 2;
     var halfExtents = new CANNON.Vec3(1,1,1);
@@ -170,6 +219,11 @@ function createPlayer(camera, controls) {
     let player = new Player(box, createGun(new THREE.Object3D()), controls);
 
     loadGLTFModel('./models/gun.glb', player.weapon);
+
+    player.weapon.mesh.children.forEach(child => {
+        child.castShadow = true;
+        child.receiveShadow = true;
+    });
 
     return player;
 }
@@ -304,6 +358,10 @@ function createScene(canvas)  {
     });
 
     actualScene.addPlayer(player);
+
+    for (let i = 0; i < 4; i++) {
+        createEnemy(((i % 2) ? 'roller' : 'shooter'));
+    }
 }
 
 function onWindowResize() {
