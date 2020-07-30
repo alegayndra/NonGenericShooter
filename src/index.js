@@ -344,6 +344,54 @@ function createSpotLight(color, pos, target) {
     // actualScene.addLight( spotLightHelper );
 }
 
+function createBoxes(size, pos) {
+    // Add boxes
+    let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
+
+    let boxSize = 6;
+    let halfExtents = new CANNON.Vec3(boxSize, boxSize, boxSize);
+    let boxShape = new CANNON.Box(halfExtents);
+    let boxGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
+    let y = 1 + boxSize + pos.y;
+    let spawns = [
+        {
+            x: pos.x + size / 4,
+            z: pos.z + size / 4
+        },
+        {
+            x: pos.x + size / 4,
+            z: pos.z - size / 4
+        },
+        {
+            x: pos.x - size / 4,
+            z: pos.z + size / 4
+        },
+        {
+            x: pos.x - size / 4,
+            z: pos.z - size / 4
+        },
+    ];
+    for(var i = 0; i < 4; i++){
+        let x = spawns[i].x;
+        let z = spawns[i].z;
+        let boxBody = new CANNON.Body({ mass: 1 });
+        boxBody.addShape(boxShape);
+        let boxMesh = new THREE.Mesh( boxGeometry, material );
+        let obj = new Entity(boxMesh, boxBody);
+        actualScene.addEnvironment(obj, true);
+        boxBody.position.set(x, y, z);
+        boxMesh.position.set(x, y, z);
+        boxMesh.castShadow = true;
+        boxMesh.receiveShadow = true;
+    }
+}
+
+function spawnEnemies() {
+    // for (let i = 0; i < 4; i++) {
+    //     createEnemy(((i % 2) ? 'roller' : 'shooter'));
+    // }
+}
+
 function createRoom(size, height, pos, sides) {
     let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
 
@@ -455,6 +503,8 @@ function createRoom(size, height, pos, sides) {
         }
     });
 
+    createBoxes(size, pos);
+
     let quarter = size / 4;
 
     createSpotLight(0xffffff, {x: pos.x + quarter, y: height - 1, z: pos.z + quarter}, {x: pos.x + quarter, y: pos.y, z: pos.z + quarter});
@@ -478,15 +528,8 @@ function generateDungeon() {
         y: 0, 
         z: 0
     }
-    // createRoom(size, height, origin, sides);
 
-    // origin.x += size;
-
-    let lastKey;// = 'right';
-    // sides.right = false;
-    // sides.left = true;
-    let currentKey;// = 'front';
-
+    let lastKey;
     let cantRooms = 5;
 
     for (let i = 0; i < cantRooms; i++) {
@@ -548,30 +591,7 @@ function generateDungeon() {
     }
 }
 
-function createBoxes() {
-    // Add boxes
-    let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
 
-    let size = 4;
-    let halfExtents = new CANNON.Vec3(size, size, size);
-    let boxShape = new CANNON.Box(halfExtents);
-    let boxGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
-    for(var i=0; i<7; i++){
-        var x = (Math.random()-0.5)*20;
-        var y = 1 + (Math.random() + 1) * 5 ;
-        var z = (Math.random()-0.5)*20;
-        var boxBody = new CANNON.Body({ mass: 1 });
-        boxBody.addShape(boxShape);
-        var boxMesh = new THREE.Mesh( boxGeometry, material );
-        // world.addBody(boxBody);
-        let obj = new Entity(boxMesh, boxBody);
-        actualScene.addEnvironment(obj, true);
-        boxBody.position.set(x,y,z);
-        boxMesh.position.set(x,y,z);
-        boxMesh.castShadow = true;
-        boxMesh.receiveShadow = true;
-    }
-}
 
 function initCannon() {
     // Setup our world
@@ -650,9 +670,7 @@ function createScene(canvas)  {
 
     actualScene.addPlayer(player);
 
-    // for (let i = 0; i < 4; i++) {
-    //     createEnemy(((i % 2) ? 'roller' : 'shooter'));
-    // }
+    
 }
 
 function onWindowResize() {
