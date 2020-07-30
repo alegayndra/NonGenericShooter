@@ -1,94 +1,134 @@
 class GameScene {
-    constructor(ThreeScene, name) {
+    constructor(ThreeScene, CannonWorld, name) {
         this.ThreeScene = ThreeScene;
-        this.Objects = [];
+        this.CannonWorld = CannonWorld
         this.name = name;
         this.player = null;
-        this.objsMeshes = [];
-        this.enemies = [];
-        this.environment = [];
-    }
 
-    addObject(obj) {
-        this.ThreeScene.add(obj.mesh);
-        // this.Objects.push(obj);
-        this.objsMeshes.push(obj.mesh);
+        this.enemies = [];
+        this.environment = {
+            static: [],
+            kinematic: []
+        };
+        this.bullets = [];
+
+        this.objectsToEliminate = [];
+
+        this.paused = true; 
+        this.gameOver = false;
     }
 
     addLight(light) {
         this.ThreeScene.add(light);
     }
 
-    addEnvironment(obj) {
-        this.environment.push(obj);
-        this.ThreeScene.add(obj);
+    addEnvironment(obj, bool) {
+        if (bool) {
+            this.environment.kinematic.push(obj);
+        } else {
+            this.environment.static.push(obj);
+        }
+        this.CannonWorld.addBody(obj.cannonBody);
+        this.ThreeScene.add(obj.mesh);
+    }
+
+    addEnemy(enem) {
+        this.enemies.push(enem)
+        this.CannonWorld.addBody(enem.cannonBody);
+        this.ThreeScene.add(enem.mesh);
     }
 
     addPlayer(player) {
         this.player = player;
-        // this.ThreeScene.add(player.mesh);
-        this.ThreeScene.add(player.camera);
+        this.ThreeScene.add(player.controls.getObject());
+    }
+
+    addBullet(bullet) {
+        this.bullets.push(bullet);
+        this.ThreeScene.add(bullet.mesh);
+        this.CannonWorld.addBody(bullet.cannonBody);
     }
 
     update(delta) {
-        // this.Objects.forEach(obj => {
-        //     obj.update(delta, this);
-        // });
-        this.player.update(delta, this);
-        // this.colision();
+
+        if (this.gameOver) {
+            this.paused = true;
+        }
+
+        if(!this.paused) {
+            this.eliminateObjects();
+    
+            this.CannonWorld.step(delta);
+    
+            this.player.update(delta);
+            this.updatePos();
+    
+            this.enemies.forEach(enemy => {
+                enemy.update(delta);
+            });
+        }
+
     }
 
-    colision() {
-
-        if (cubeBox.position.x >= 20) {
-            movement = false;
-        } else if (cubeBox.position.x <= -20) {
-            movement = true;
+    disposeGeometries(child) {
+        if (child.geometry) {
+            child.geometry.dispose();
         }
-
-        if (movement) {
-            cubeBox.position.x += 0.1;
-        } else {
-            cubeBox.position.x -= 0.1;
+        if (child.material) {
+            child.material.dispose();
         }
+        child.children.forEach(c => {
+            this.disposeGeometries(c);
+        });
+    }
 
-        let col1 = new THREE.Box3().setFromObject(cubeBox);
-        let col2 = new THREE.Box3().setFromObject(this.environment[1]);
+    disposeObj(obj) {
+        const object = this.ThreeScene.getObjectByProperty( 'uuid', obj.mesh.uuid );
 
-        // uno = col1;
-        // dos = col2;
-
-        let right = ((col1.min.x < col2.max.x) && (col1.max.x > col2.max.x));
-        let left = ((col1.max.x > col2.min.x) && (col1.min.x < col2.min.x));
-
-        // console.log(left, right);
-
-        // console.log(col1.max.x, col2.min.x, (left));
-
-
-        // console.log(col1.max.x, (col1.max.x > col2.min.x));
-
-        // console.log(this.environment[1]);
-
-        if (col1.intersectsBox(col2)) {
-            // console.log('colision');
-
-            // let left, right;
-
-            // left = (col1.max.x < col2.min.x);
-
-            // console.log(left, right);
-
-            // console.log(col1.min, col2.min);
-
+        if (object) {
+            this.disposeGeometries(object);
             
+            this.ThreeScene.remove(object);
+            this.CannonWorld.remove(obj.cannonBody);
+        }
 
+    }
+
+    eliminateObjects() {
+        if (this.objectsToEliminate.length > 0) {
+            this.objectsToEliminate.forEach(pos => {
+                this.disposeObj(pos.obj);
+                switch(pos.type) {
+                    case 'bullet':
+                        this.bullets = this.bullets.filter(arr => pos.obj !== arr);
+                        break;
+                    case 'enemy':
+                        this.enemies = this.enemies.filter(arr => pos.obj !== arr);
+                        break;
+                    case 'kinematic':
+                        this.environment.kinematic = this.environment.kinematic.filter(arr => pos.obj !== arr);
+                        break;
+                    case 'static':
+                        this.environment.static = this.environment.static.filter(arr => pos.obj !== arr);
+                        break;
+                }
+            });
+            renderer.renderLists.dispose();
+            this.objectsToEliminate = [];
         }
     }
 
-    animate() {
-        this.Objects.forEach(obj => {
-            obj.animate();
+    updatePos() {
+        this.enemies.forEach(enemy => {
+            enemy.updatePos();
+        });
+
+        this.bullets.forEach(bullet => {
+            bullet.updatePos();
+        });
+
+        this.environment.kinematic.forEach(obj => {
+            obj.updatePos();
         });
     }
 }
