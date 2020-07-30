@@ -49,8 +49,8 @@ class Enemy extends Entity {
     }
 
     rotate(delta) {
-        this.mesh.rotation.x += this.cannonBody.velocity.x * delta;
-        this.mesh.rotation.z += this.cannonBody.velocity.z * delta;
+        this.mesh.rotation.x += this.cannonBody.velocity.z * delta * 0.2;
+        this.mesh.rotation.z += this.cannonBody.velocity.x * delta * 0.2;
     }
 
     update(delta) {
