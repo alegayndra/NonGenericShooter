@@ -20,6 +20,10 @@ class Player {
             shooting: false
         }
 
+        this.timeToHeal = 0;
+        this.healing = false;
+        this.healingTime = 0;
+
         this.frameAnimation = 0;
 
         this.hit = false;
@@ -50,14 +54,41 @@ class Player {
         
         this.shoot(delta);
 
+        this.timeToHeal += delta;
+
+        if (!this.healing) {
+            if (this.timeToHeal >= 5) {
+                this.healing = true;
+                this.timeToHeal = 0;
+            }
+        } else {
+
+            if (this.health >= 5) {
+                this.healing = false;
+                this.healingTime = 0;
+            } else {
+                this.healingTime += delta;
+                if (this.healingTime >= 1) {
+                    this.healingTime -= 1;
+                    hearts.push(document.getElementById(`heart${hearts.length + 1}`));
+                    hearts[hearts.length-1].style.display = 'block';
+                    this.health++;
+                }
+            }
+
+        }
         if (this.hit) {
             console.log('player hit');
             hearts[hearts.length-1].style.display = 'none'
             hearts.pop()
             this.health--;
             this.hit = false;
+
+            this.timeToHeal = 0;
+            this.healing = 0;
+            this.healingTime = 0;
+
             if (this.health <= 0) {
-                // actualScene.objectsToEliminate.push({obj: this, type: 'enemy'})
                 actualScene.gameOver = true;
             }
         }
