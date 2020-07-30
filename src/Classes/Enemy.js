@@ -17,6 +17,14 @@ class Enemy extends Entity {
         this.timeElapsed = 0;
         this.direction = new THREE.Ray();
         this.direction.origin.set(cannonBody.position.x, cannonBody.position.y, cannonBody.position.z);
+        
+        if (type == 'roller') {
+            cannonBody.addEventListener("collide",function(e){
+                if (actualScene.player.controls.getCannonBody().id == e.body.id) {
+                    actualScene.player.hit = true;
+                }
+            });
+        }
     }
 
     shootPlayer() {

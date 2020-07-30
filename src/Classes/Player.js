@@ -23,6 +23,7 @@ class Player {
         this.frameAnimation = 0;
 
         this.hit = false;
+        this.health = 5;
     }
 
     shoot(delta) {
@@ -51,7 +52,12 @@ class Player {
 
         if (this.hit) {
             console.log('player hit');
+            this.health--;
             this.hit = false;
+            if (this.health <= 0) {
+                // actualScene.objectsToEliminate.push({obj: this, type: 'enemy'})
+                actualScene.gameOver = true;
+            }
         }
 
         this.controls.update(delta * 1000);

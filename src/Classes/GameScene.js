@@ -15,6 +15,7 @@ class GameScene {
         this.objectsToEliminate = [];
 
         this.paused = true; 
+        this.gameOver = false;
     }
 
     addLight(light) {
@@ -49,6 +50,10 @@ class GameScene {
     }
 
     update(delta) {
+
+        if (this.gameOver) {
+            this.paused = true;
+        }
 
         if(!this.paused) {
             this.eliminateObjects();
