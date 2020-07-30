@@ -159,7 +159,7 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
     bullet.mesh.castShadow = true;
     bullet.mesh.receiveShadow = true;        
 
-    bulletBody.quaternion.copy (object.quaternion);
+    bulletBody.quaternion.copy(object.quaternion);
     bullet.mesh.applyQuaternion(object.quaternion);
 
     bulletBody.velocity.set(shootDirection.x * shootVelo, shootDirection.y * shootVelo, shootDirection.z * shootVelo);
@@ -210,48 +210,43 @@ function createGun(mesh) {
 
 function createEnemy(type) {
 
-    // Add boxes
-    let material = new THREE.MeshPhongMaterial( { color: 0xff9999 } );
     let enemyShape;
-    
-    let enemyGeometry;
-    
     let mass;
-
-    let y = 15;
+    let modelUrl;
 
     switch(type) {
         case 'roller':
             mass = 1;
+            modelUrl = './models/roller.glb';
             let radius = 5
             enemyShape = new CANNON.Sphere(radius);
-            enemyGeometry = new THREE.SphereGeometry(radius, 32, 32 );
             break;
         case 'shooter':
             mass = 0
-            // y = 15;
+            modelUrl = './models/shooter.glb';
             let size = 4;
             let halfExtents = new CANNON.Vec3(size, size, size);
             enemyShape = new CANNON.Box(halfExtents);
-            enemyGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
             break;
     }
 
     let enemyBody = new CANNON.Body({mass: mass});
     enemyBody.addShape(enemyShape);
     
-    let enemyMesh = new THREE.Mesh(enemyGeometry, material);
+    let enemy = new Enemy(new THREE.Object3D(), enemyBody, type);
+    loadGLTFModel(modelUrl, enemy);
 
-    enemyMesh.castShadow = true;
-    enemyMesh.receiveShadow = true;
+    // let enemyMesh = new THREE.Mesh(enemyGeometry, material);
+
+    enemy.mesh.castShadow = true;
+    enemy.mesh.receiveShadow = true;
 
     let x = (Math.random() * 50) - 25;
     let z = (Math.random() * 50) - 25;
+    let y = 15;
 
-    enemyMesh.position.set(x, y, z);
+    enemy.mesh.position.set(x, y, z);
     enemyBody.position.set(x, y, z);
-
-    let enemy = new Enemy(enemyMesh, enemyBody, type);
 
     actualScene.addEnemy(enemy);
 
