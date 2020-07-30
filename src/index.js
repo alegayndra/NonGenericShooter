@@ -1,12 +1,15 @@
 let camera, renderer, controls;
 let actualScene, gameScenes = [];
 
-let blocker, instructions;
+let blocker, instructions, aimReticle, hearts=[];
 
 let prevTime = performance.now();
 
 let cubeUrl = "./images/wooden_crate_2.png";
 let bulletUrl = './models/bullet.glb';
+let chestURl = "../images/minecra.png";
+
+let cubeBox;
 
 let bulletMesh = null;
 
@@ -44,6 +47,11 @@ function loadGLTFModel(path, obj) {
 function initPointerLock() {
     blocker = document.getElementById( 'blocker' );
     instructions = document.getElementById( 'instructions' );
+    aimReticle = document.getElementById( 'aimReticle');
+    for (let i = 1; i <= 5; i++) {
+        hearts.push(document.getElementById(`heart${i}`));
+    }
+    console.log(hearts);
     var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 
     if ( havePointerLock ) {
@@ -54,12 +62,22 @@ function initPointerLock() {
             if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
                 controls.enabled = true;
                 blocker.style.display = 'none';
+                actualScene.paused = false;
+                aimReticle.style.display = 'block';
+                for (heart of hearts) {
+                    heart.style.display = 'block';
+                }
             } else {
                 controls.enabled = false;
                 blocker.style.display = '-webkit-box';
                 blocker.style.display = '-moz-box';
                 blocker.style.display = 'box';
                 instructions.style.display = '';
+                actualScene.paused = true;
+                aimReticle.style.display = 'none';
+                for (heart of hearts) {
+                    heart.style.display = 'none';
+                }
             }
         }
 
@@ -138,12 +156,10 @@ function loadBulletModel() {
 
     loadGLTFModel(bulletUrl, bulletMesh);
 
-    // actualScene.addBullet(bulletMesh);
-
     bulletMesh.mesh.rotation.y = Math.PI / 2;
 }
 
-function createBullet(shootVelo, shootDirection, object, r) {
+function createBullet(shootVelo, shootDirection, object, r, parent) {
     
     let size = 0.3;
     let halfExtents = new CANNON.Vec3(size / 2, size / 2, size);
@@ -174,6 +190,23 @@ function createBullet(shootVelo, shootDirection, object, r) {
 
     bulletBody.addEventListener("collide",function(e){
         actualScene.objectsToEliminate.push({obj: bullet, type: 'bullet'});
+        switch(parent) {
+            case 'player':
+                let cont = true;
+                for (let i = 0; cont && i < actualScene.enemies.length; i++) {
+                    if (actualScene.enemies[i].cannonBody.id == e.body.id) {
+                        actualScene.enemies[i].hit = true;
+                    }
+                }
+                break;
+            case 'enemy':
+                if (actualScene.player.controls.getCannonBody().id == e.body.id) {
+                    actualScene.player.hit = true;
+                }
+                
+                break;
+        }
+        
     });
 
     actualScene.addBullet(bullet);
@@ -264,6 +297,28 @@ function createPlayer(camera, controls) {
     });
 
     return player;
+}
+
+function createLootChest(size, x, y, z) {
+    let sizeBox = size;
+    let boxGeometry = new THREE.BoxGeometry( sizeBox, sizeBox, sizeBox );
+    let chestMap = new THREE.TextureLoader().load(chestURl);
+    let cubeMap = new THREE.TextureLoader().load(cubeUrl);
+    let boxMaterial = [
+        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: chestMap } ),
+        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap } ),
+        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: chestMap } ),
+        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap } ),
+        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: chestMap } ),
+        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: chestMap } )
+    ];
+    let box = new THREE.Mesh( boxGeometry, boxMaterial );
+    box.position.z = z;
+    box.position.x = y;
+    box.position.y = x;
+
+    let lootChest = new Loot(box, 100);
+    return lootChest;
 }
 
 function createRoom(size) {

@@ -166,6 +166,10 @@ var PointerLockControls = function ( camera, cannonBody ) {
         return yawObject.children[0].children[0];
     }
 
+    this.getCannonBody = () => {
+        return cannonBody;
+    }
+
     this.getMouseClicked = () => {
         return mouseClicked;
     }

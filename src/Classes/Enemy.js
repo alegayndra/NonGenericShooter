@@ -11,13 +11,24 @@ class Enemy extends Entity {
             z: 0,
         }
 
+        this.hit = false;
+        this.health = 3;
+
         this.timeElapsed = 0;
         this.direction = new THREE.Ray();
         this.direction.origin.set(cannonBody.position.x, cannonBody.position.y, cannonBody.position.z);
+        
+        if (type == 'roller') {
+            cannonBody.addEventListener("collide",function(e){
+                if (actualScene.player.controls.getCannonBody().id == e.body.id) {
+                    actualScene.player.hit = true;
+                }
+            });
+        }
     }
 
     shootPlayer() {
-        createBullet(100, this.direction.direction, this.mesh, this.cannonBody.boundingRadius + 1);
+        createBullet(100, this.direction.direction, this.mesh, this.cannonBody.boundingRadius + 1, 'enemy');
     }
 
     followPlayer(delta) {
@@ -48,6 +59,16 @@ class Enemy extends Entity {
                     break;
                 case 'shooter':
                     this.shootPlayer();
+            }
+        }
+
+        
+        if (this.hit) {
+            console.log('enemy hit');
+            this.health--;
+            this.hit = false;
+            if (this.health <= 0) {
+                actualScene.objectsToEliminate.push({obj: this, type: 'enemy'})
             }
         }
     }
