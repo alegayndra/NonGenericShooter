@@ -25,6 +25,8 @@ function loadGLTFModel(path, obj) {
         function ( gltf ) {
             let num = gltf.scene.children.length;
             for (let i = 0; i < num; i++) {
+                gltf.scene.children[0].castShadow = true;
+                gltf.scene.children[0].receiveShadow = true;
                 obj.mesh.add( gltf.scene.children[0] );
             }
             // gltf.animations; // Array<THREE.AnimationClip>
@@ -447,13 +449,15 @@ function initCannon() {
 function createScene(canvas)  {
     initCannon();
     renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
 
     window.addEventListener( 'resize', onWindowResize, false );
     
-    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+    camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 1000 );
 
     // camera.position.y = 100;
 
@@ -463,7 +467,7 @@ function createScene(canvas)  {
 
     loadBulletModel();
 
-    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.2 );
+    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.3 );
     light.position.set( 0.5, 1, 0.75 );
     actualScene.addLight( light );
 
