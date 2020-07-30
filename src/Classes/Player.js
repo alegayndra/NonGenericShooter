@@ -52,6 +52,8 @@ class Player {
 
         if (this.hit) {
             console.log('player hit');
+            hearts[hearts.length-1].style.display = 'none'
+            hearts.pop()
             this.health--;
             this.hit = false;
             if (this.health <= 0) {
