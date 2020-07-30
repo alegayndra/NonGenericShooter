@@ -12,6 +12,7 @@ class Enemy extends Entity {
         }
 
         this.hit = false;
+        this.health = 3;
 
         this.timeElapsed = 0;
         this.direction = new THREE.Ray();
@@ -56,7 +57,11 @@ class Enemy extends Entity {
         
         if (this.hit) {
             console.log('enemy hit');
+            this.health--;
             this.hit = false;
+            if (this.health <= 0) {
+                actualScene.objectsToEliminate.push({obj: this, type: 'enemy'})
+            }
         }
     }
 }
