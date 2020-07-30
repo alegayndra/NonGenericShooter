@@ -146,7 +146,7 @@ function loadBulletModel() {
 function createBullet(shootVelo, shootDirection, object, r, parent) {
     
     let size = 0.3;
-    let halfExtents = new CANNON.Vec3(size / 2, size / 2, size);
+    let halfExtents = new CANNON.Vec3(0.35, 0.21, 0.21);
 
     let bulletShape = new CANNON.Box(halfExtents);
     let bulletBody = new CANNON.Body({ mass: 0.00000001 });
@@ -189,7 +189,6 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
                 }
                 break;
         }
-        
     });
 
     actualScene.addBullet(bullet);
