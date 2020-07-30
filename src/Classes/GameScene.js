@@ -13,6 +13,8 @@ class GameScene {
         this.bullets = [];
 
         this.objectsToEliminate = [];
+
+        this.paused = true; 
     }
 
     addLight(light) {
@@ -48,16 +50,19 @@ class GameScene {
 
     update(delta) {
 
-        this.eliminateObjects();
+        if(!this.paused) {
+            this.eliminateObjects();
+    
+            this.CannonWorld.step(delta);
+    
+            this.player.update(delta);
+            this.updatePos();
+    
+            this.enemies.forEach(enemy => {
+                enemy.update(delta);
+            });
+        }
 
-        this.CannonWorld.step(delta);
-
-        this.player.update(delta);
-        this.updatePos();
-
-        this.enemies.forEach(enemy => {
-            enemy.update(delta);
-        });
     }
 
     disposeGeometries(child) {

@@ -11,13 +11,15 @@ class Enemy extends Entity {
             z: 0,
         }
 
+        this.hit = false;
+
         this.timeElapsed = 0;
         this.direction = new THREE.Ray();
         this.direction.origin.set(cannonBody.position.x, cannonBody.position.y, cannonBody.position.z);
     }
 
     shootPlayer() {
-        createBullet(100, this.direction.direction, this.mesh, this.cannonBody.boundingRadius + 1);
+        createBullet(100, this.direction.direction, this.mesh, this.cannonBody.boundingRadius + 1, 'enemy');
     }
 
     followPlayer(delta) {
@@ -49,6 +51,12 @@ class Enemy extends Entity {
                 case 'shooter':
                     this.shootPlayer();
             }
+        }
+
+        
+        if (this.hit) {
+            console.log('enemy hit');
+            this.hit = false;
         }
     }
 }

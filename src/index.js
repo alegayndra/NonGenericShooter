@@ -54,12 +54,14 @@ function initPointerLock() {
             if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
                 controls.enabled = true;
                 blocker.style.display = 'none';
+                actualScene.paused = false;
             } else {
                 controls.enabled = false;
                 blocker.style.display = '-webkit-box';
                 blocker.style.display = '-moz-box';
                 blocker.style.display = 'box';
                 instructions.style.display = '';
+                actualScene.paused = true;
             }
         }
 
@@ -138,12 +140,10 @@ function loadBulletModel() {
 
     loadGLTFModel(bulletUrl, bulletMesh);
 
-    // actualScene.addBullet(bulletMesh);
-
     bulletMesh.mesh.rotation.y = Math.PI / 2;
 }
 
-function createBullet(shootVelo, shootDirection, object, r) {
+function createBullet(shootVelo, shootDirection, object, r, parent) {
     
     let size = 0.3;
     let halfExtents = new CANNON.Vec3(size / 2, size / 2, size);
@@ -174,6 +174,22 @@ function createBullet(shootVelo, shootDirection, object, r) {
 
     bulletBody.addEventListener("collide",function(e){
         actualScene.objectsToEliminate.push({obj: bullet, type: 'bullet'});
+        switch(parent) {
+            case 'player':
+                let cont = true;
+                for (let i = 0; cont && i < actualScene.enemies.length; i++) {
+                    if (actualScene.enemies[i].cannonBody.id == e.body.id) {
+                        actualScene.enemies[i].hit = true;
+                    }
+                }
+                break;
+            case 'enemy':
+                if (actualScene.player.controls.getCannonBody().id == e.body.id) {
+                    actualScene.player.hit = true;
+                }
+                break;
+        }
+        
     });
 
     actualScene.addBullet(bullet);

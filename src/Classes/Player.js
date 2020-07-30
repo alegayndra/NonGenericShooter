@@ -21,6 +21,8 @@ class Player {
         }
 
         this.frameAnimation = 0;
+
+        this.hit = false;
     }
 
     shoot(delta) {
@@ -41,32 +43,16 @@ class Player {
         }
 
         this.raycaster.setFromCamera(new THREE.Vector2(0, 0), this.raycaster.camera);
-
-        // this.raycaster.ray.origin.copy( this.controls.getObject().position );    
-        // this.raycaster.ray.direction.x = this.controls.getObject().quaternion.x ;
-        // this.raycaster.ray.origin.y -= 10;
-
-        // let intersections = this.raycaster.intersectObjects( actualScene.ThreeScene.children );
-
-        // var intersects = raycaster.intersectObjects( scene.children );
-
-        // for ( var i = 0; i < intersections.length; i++ ) {
-        //     intersections[ i ].object.material.color.set( 0xff0000 );
-        // }
-
-        // var projector = new THREE.Projector();
-        // function getShootDir(targetVec){
-        //     var vector = targetVec;
-        //     targetVec.set(0,0,1);
-        //     projector.unprojectVector(vector, camera);
-        //     var ray = new THREE.Ray(sphereBody.position, vector.sub(sphereBody.position).normalize() );
-        //     targetVec.copy(ray.direction);
-        // }
     }
 
     update(delta) {
         
         this.shoot(delta);
+
+        if (this.hit) {
+            console.log('player hit');
+            this.hit = false;
+        }
 
         this.controls.update(delta * 1000);
 
