@@ -45,8 +45,7 @@ class Enemy extends Entity {
         let factorX = (actualScene.player.controls.getObject().position.x - this.cannonBody.position.x);
         let factorZ = (actualScene.player.controls.getObject().position.z - this.cannonBody.position.z);
         this.cannonBody.velocity.x += this.velocity * delta * factorX; 
-        this.cannonBody.velocity.z += this.velocity * delta * factorZ; 
-        // this.mesh.applyQuaternion(this.cannonBody.quaternion);
+        this.cannonBody.velocity.z += this.velocity * delta * factorZ;
     }
 
     updateDirection() {
@@ -88,8 +87,6 @@ class Enemy extends Entity {
                     this.shootPlayer();
                 }
         }
-        
-
         
         if (this.hit) {
             console.log('enemy hit');
