@@ -4,20 +4,31 @@ class Enemy extends Entity {
 
         this.type = type;
 
-        this.velocity = 50;
+        this.velocity = 0.5;
 
         this.dir = {
             x: 0,
             z: 0,
         }
 
+        this.hit = false;
+        this.health = 3;
+
         this.timeElapsed = 0;
         this.direction = new THREE.Ray();
         this.direction.origin.set(cannonBody.position.x, cannonBody.position.y, cannonBody.position.z);
+        
+        if (type == 'roller') {
+            cannonBody.addEventListener("collide",function(e){
+                if (actualScene.player.controls.getCannonBody().id == e.body.id) {
+                    actualScene.player.hit = true;
+                }
+            });
+        }
     }
 
     shootPlayer() {
-        createBullet(100, this.direction.direction, this.mesh, this.cannonBody.boundingRadius + 1);
+        createBullet(100, this.direction.direction, this.mesh, this.cannonBody.boundingRadius + 1, 'enemy');
     }
 
     followPlayer(delta) {
@@ -25,6 +36,7 @@ class Enemy extends Entity {
         let factorZ = (actualScene.player.controls.getObject().position.z - this.cannonBody.position.z);
         this.cannonBody.velocity.x += this.velocity * delta * factorX; 
         this.cannonBody.velocity.z += this.velocity * delta * factorZ; 
+        // this.mesh.applyQuaternion(this.cannonBody.quaternion);
     }
 
     updateDirection() {
@@ -36,18 +48,36 @@ class Enemy extends Entity {
         this.cannonBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1), this.mesh.rotation.z);
     }
 
+    rotate(delta) {
+        this.mesh.rotation.x += this.cannonBody.velocity.z * delta * 0.2;
+        this.mesh.rotation.z += this.cannonBody.velocity.x * delta * 0.2;
+    }
+
     update(delta) {
         this.timeElapsed += delta;
-        this.updateDirection();
-        let time = 1;
-        if (this.timeElapsed >= time) {
-            this.timeElapsed -= time;
-            switch(this.type) {
-                case 'roller':
-                    this.followPlayer(delta);
-                    break;
-                case 'shooter':
+
+        switch(this.type) {
+            case 'roller':
+                this.rotate(delta);
+                this.followPlayer(delta);
+                break;
+            case 'shooter':
+                this.updateDirection();
+                let time = 1;
+                if (this.timeElapsed >= time) {
+                    this.timeElapsed -= time;
                     this.shootPlayer();
+                }
+        }
+        
+
+        
+        if (this.hit) {
+            console.log('enemy hit');
+            this.health--;
+            this.hit = false;
+            if (this.health <= 0) {
+                actualScene.objectsToEliminate.push({obj: this, type: 'enemy'})
             }
         }
     }

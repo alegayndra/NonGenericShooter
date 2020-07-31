@@ -1,107 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>three.js - pointerlock controls</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-        <link rel="stylesheet" href="./css/threejsPointerLock.css" />
 
-        <style>
-            html, body {
-                width: 100%;
-                height: 100%;
+<head>
+    <title>three.js - pointerlock controls</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="./css/threejsPointerLock.css" />
+
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            overflow: hidden;
+            font-family: arial;
+        }
+
+        #blocker {
+            position: absolute;
+
+            width: 100%;
+            height: 100%;
+
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        #instructions {
+            width: 100%;
+            height: 100%;
+
+            display: -webkit-box;
+            display: -moz-box;
+            display: box;
+
+            -webkit-box-orient: horizontal;
+            -moz-box-orient: horizontal;
+            box-orient: horizontal;
+
+            -webkit-box-pack: center;
+            -moz-box-pack: center;
+            box-pack: center;
+
+            -webkit-box-align: center;
+            -moz-box-align: center;
+            box-align: center;
+
+            color: #ffffff;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        #titleScreen {
+            position: absolute;
+            display: block;
+            z-index: 100;
+            left: 0%;
+            top: 0%;
+            width: 100%;
+            height: 100%;
+        }
+        #clickMe {
+            position: absolute;
+            display: block;
+            z-index: 100;
+            left: 19%;
+            top: 70%;
+            animation: blinker 1s linear infinite;
+    }
+
+        @keyframes blinker {
+            50% {
+                opacity: 0;
             }
+        }
 
-            body {
-                background-color: #ffffff;
-                margin: 0;
-                overflow: hidden;
-                font-family: arial;
-            }
+        #aimReticle, #heart1, #heart2, #heart3, #heart4, #heart5 {
+            position: absolute;
+            display: none;
+            z-index: 99;
+            width: 60px;
+            height: 60px;
+        }
+        #aimReticle {
+            left: 47.5%;
+            top: 46%;
+        }
+        #heart1 {
+            left: 0%;
+            top: 0%;
+        }
+        #heart2 {
+            left: 3%;
+            top: 0%;
+        }
+        #heart3 {
+            left: 6%;
+            top: 0%;
+        }
+        #heart4 {
+            left: 9%;
+            top: 0%;
+        }
+        #heart5 {
+            left: 12%;
+            top: 0%;
+        }
 
-            #blocker {
+    </style>
 
-                position: absolute;
-
-                width: 100%;
-                height: 100%;
-
-                background-color: rgba(0,0,0,0.5);
-
-            }
-
-            #instructions {
-
-                width: 100%;
-                height: 100%;
-
-                display: -webkit-box;
-                display: -moz-box;
-                display: box;
-
-                -webkit-box-orient: horizontal;
-                -moz-box-orient: horizontal;
-                box-orient: horizontal;
-
-                -webkit-box-pack: center;
-                -moz-box-pack: center;
-                box-pack: center;
-
-                -webkit-box-align: center;
-                -moz-box-align: center;
-                box-align: center;
-
-                color: #ffffff;
-                text-align: center;
-
-                cursor: pointer;
-
-            }
-
-        </style>
-        
-		<script src="./libs/three.js/three.js"></script>
-		<script src="./libs/three.js/loaders/GLTFLoader.js"></script>
-		<!-- <script src="./libs/three.js/CannonThreeJS.js"></script> -->
-		<script src="./libs/cannon.js/cannon.min.js"></script>
-		<!-- <script src="./libs/cannon.js/cannon.js"></script> -->
-        <script src="./libs/three.js/controls/PointerLockControls.js"></script>
-         <!-- <script src="../libs/jquery-3.4.1/jquery-3.4.1.min.js"></script>
+    <script src="./libs/three.js/three.js"></script>
+    <script src="./libs/three.js/loaders/GLTFLoader.js"></script>
+    <script src="./libs/cannon.js/cannon.min.js"></script>
+    <script src="./libs/three.js/controls/PointerLockControls.js"></script>
+    <!-- <script src="../libs/jquery-3.4.1/jquery-3.4.1.min.js"></script>
         <script src="../libs/jquery-ui/jquery-ui.js"></script> -->
 
-        <script src="./src/Classes/Entity.js"></script>
-        <script src="./src/Classes/Bullets.js"></script>
-        <script src="./src/Classes/Guns.js"></script>
-        <script src="./src/Classes/Enemy.js"></script>
-        <script src="./src/Classes/Player.js"></script>
-        <script src="./src/Classes/GameScene.js"></script>
-        <script src="./src/index.js"></script>
-        
-    </head>
-    
-	<body>
+    <script src="./src/Classes/Entity.js"></script>
+    <script src="./src/Classes/Bullets.js"></script>
+    <script src="./src/Classes/Guns.js"></script>
+    <script src="./src/Classes/Enemy.js"></script>
+    <script src="./src/Classes/Player.js"></script>
+    <script src="./src/Classes/GameScene.js"></script>
+    <script src="./src/index.js"></script>
 
-		<div id="blocker">
+</head>
 
-			<div id="instructions">
-				<span style="font-size:40px">Click to play</span>
-				<br />
-				(W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
-            </div>
+<body>
+
+    <div id="blocker">
+
+        <div id="instructions">
+            <span style="font-size:40px">Click to play</span>
+            <br />
+            (W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
         </div>
+    </div>
 
-        <div id="container">
-            <canvas id="webglcanvas"></canvas>
-        </div>
+    <div id="container">
+        <canvas id="webglcanvas"></canvas>
+    </div>
+    <div id="ui">
+        <img src="./images/TitleScreen.jpg" id="titleScreen">
+        <img src="./images/click.png" id="clickMe">
+        <img src="./images/heart.png" id="heart1">
+        <img src="./images/heart.png" id="heart2">
+        <img src="./images/heart.png" id="heart3">
+        <img src="./images/heart.png" id="heart4">
+        <img src="./images/heart.png" id="heart5">
+        <img src="./images/aim.png" id="aimReticle">
+    </div>
+    <script type="text/javascript">
+        var canvas = document.getElementById("webglcanvas");
 
-        <script type="text/javascript">
-            var canvas = document.getElementById("webglcanvas");
-        
-            // create the scene
-            createScene(canvas);
-            
-            run();
-        </script>
-        
-	</body>
+        // create the scene
+        createScene(canvas);
+
+        run();
+    </script>
+
+</body>
+
 </html>

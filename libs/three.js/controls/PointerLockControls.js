@@ -31,7 +31,6 @@ var PointerLockControls = function ( camera, cannonBody ) {
     var mouseClicked = false;
 
     var lastW = 0;
-    var startedCrouch = 0;
 
     var contactNormal = new CANNON.Vec3(); // Normal in the contact, pointing *out* of whatever the player touched
     var upAxis = new CANNON.Vec3(0,1,0);
@@ -164,6 +163,10 @@ var PointerLockControls = function ( camera, cannonBody ) {
 
     this.getCamera = () => {
         return yawObject.children[0].children[0];
+    }
+
+    this.getCannonBody = () => {
+        return cannonBody;
     }
 
     this.getMouseClicked = () => {

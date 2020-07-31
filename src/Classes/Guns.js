@@ -4,6 +4,6 @@ class Guns {
     }
 
     shoot(raycaster, controls) {
-        createBullet(250, raycaster.ray.direction, controls.getObject(), 15);
+        createBullet(250, raycaster.ray.direction, controls.getObject(), 15, 'player');
     }
 }
