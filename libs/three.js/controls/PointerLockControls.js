@@ -25,8 +25,7 @@ var PointerLockControls = function ( camera, cannonBody ) {
 
     var canJump = false;
 
-    var running = false;
-    var crouching = false;
+    var restart = false;
 
     var mouseClicked = false;
 
@@ -72,10 +71,6 @@ var PointerLockControls = function ( camera, cannonBody ) {
 
             case 38: // up
             case 87: // w
-                if (!moveForward) {
-                    if (!crouching && prevTime - lastW <= 200) running = true;
-                    lastW = prevTime; 
-                }
                 moveForward = true;
                 break;
 
@@ -99,12 +94,8 @@ var PointerLockControls = function ( camera, cannonBody ) {
                 }
                 canJump = false;
                 break;
-            case 16:
-                if (canJump) {
-                    crouching = true;
-                    running = false;
-                    startedCrouch = prevTime;
-                }
+            case 82:
+                restart = true;
                 break;
         }
 
@@ -134,8 +125,8 @@ var PointerLockControls = function ( camera, cannonBody ) {
             case 68: // d
                 moveRight = false;
                 break;
-            case 16:
-                crouching = false;
+            case 82:
+                restart = false;
                 break;
         }
 
@@ -171,6 +162,10 @@ var PointerLockControls = function ( camera, cannonBody ) {
 
     this.getMouseClicked = () => {
         return mouseClicked;
+    }
+
+    this.getRestart = () => {
+        return restart;
     }
 
     this.getDirection = function(targetVec){

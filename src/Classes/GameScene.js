@@ -34,6 +34,7 @@ class GameScene {
         // Estados del juego
         this.paused = true; 
         this.gameOver = false;
+        this.levelFinished = false;
     }
 
     /*
@@ -102,12 +103,24 @@ class GameScene {
 
         // Checa si el juego se terminó para marcar que el juego está pausado 
         if (this.gameOver) {
+            gameOver.style.display = 'block';
+            scoreDOM.style.display = 'none';
             this.paused = true;
+        }
+
+        if (!this.levelFinished) {
+            finishLevel.style.display = 'none';
         }
 
         // Checa si el juego está pausado
         if(!this.paused) {
+            scoreDOM.innerHTML= `Score: ${score}`;
             this.eliminateObjects();
+            console.log(this.enemies.length);
+            if (this.enemies.length <= 0) {
+                this.levelFinished = true;
+                finishLevel.style.display = 'block';
+            }
             this.CannonWorld.step(delta);
             this.updatePos();
     
@@ -183,6 +196,30 @@ class GameScene {
             renderer.renderLists.dispose();
             this.objectsToEliminate = [];
         }
+    }
+
+    /*
+        Resetea la escena
+    */
+    restartScene() {
+        // Limpia los arreglos de la escena
+        this.objectsToEliminate = [];
+
+        this.enemies = [];
+        this.environment.static = [];
+        this.environment.kinematic = [];
+        this.bullets = [];
+
+        // Resetea los estados del juego
+        this.paused = true; 
+        this.gameOver = false;
+        this.levelFinished = false;
+        
+        // Genera una nueva escena de ThreeJs y un nuevo mundo de CannonJS
+        this.ThreeScene = new THREE.Scene();
+        this.ThreeScene.background = new THREE.Color(0xffffff);
+        this.ThreeScene.fog = new THREE.Fog(0xffffff, 0, 900);
+        this.CannonWorld = initCannon();
     }
 
     /*

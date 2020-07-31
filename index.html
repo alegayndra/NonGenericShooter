@@ -55,6 +55,19 @@
             cursor: pointer;
         }
 
+        #finishLevel {
+            position: absolute;
+            display: 'block';
+            z-index: 100;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            animation: blinker 1s linear infinite;
+            color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
         #titleScreen {
             position: absolute;
             display: block;
@@ -63,6 +76,7 @@
             top: 0%;
             width: 100%;
             height: 100%;
+            
         }
         #clickMe {
             position: absolute;
@@ -71,12 +85,31 @@
             left: 19%;
             top: 70%;
             animation: blinker 1s linear infinite;
-    }
+        }
 
         @keyframes blinker {
             50% {
                 opacity: 0;
             }
+        }
+
+        #gameOver {
+            position: absolute;
+            display: none;
+            z-index: 100;
+            left: 0%;
+            top: 0%;
+            width: 100%;
+            height: 100%;
+        }
+        #score {
+            position: absolute;
+            display: block;
+            z-index: 100;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            top: 3%;
+            color: #ffffff;
         }
 
         #aimReticle, #heart1, #heart2, #heart3, #heart4, #heart5 {
@@ -135,9 +168,8 @@
     <div id="blocker">
 
         <div id="instructions">
-            <span style="font-size:40px">Click to play</span>
+            <span style="font-size:40px">PAUSED</span>
             <br />
-            (W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
         </div>
     </div>
 
@@ -145,14 +177,21 @@
         <canvas id="webglcanvas"></canvas>
     </div>
     <div id="ui">
+        <div id="finishLevel">
+            <span style="font-size:40px" id="">LEVEL CLEARED</span>
+                <br>
+            <span>Press "R" to go the next level</span>
+        </div>
         <img src="./images/TitleScreen.jpg" id="titleScreen">
         <img src="./images/click.png" id="clickMe">
+        <img src="./images/gameOver.jpg" id="gameOver">
         <img src="./images/heart.png" id="heart1">
         <img src="./images/heart.png" id="heart2">
         <img src="./images/heart.png" id="heart3">
         <img src="./images/heart.png" id="heart4">
         <img src="./images/heart.png" id="heart5">
         <img src="./images/aim.png" id="aimReticle">
+        <span style="font-size:40px" id="score"></span>
     </div>
     <script type="text/javascript">
         var canvas = document.getElementById("webglcanvas");

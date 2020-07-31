@@ -1,7 +1,7 @@
 let camera, renderer, controls;
 let actualScene, gameScenes = [];
 
-let blocker, instructions, aimReticle, titleScreen, clickMe, hearts = [];
+let blocker, instructions, aimReticle, titleScreen, clickMe, gameOver, scoreDOM, finishLevel, hearts = [];
 
 let prevTime = performance.now();
 
@@ -10,10 +10,13 @@ let bulletUrl = './models/bullet.glb';
 let chestURl = "./images/minecra.png";
 let futuristicCubeUrl = './images/futuristicCubes.png'
 let floorUrl = './images/floor.png';
-
-let cubeBox;
+let bumpUrl = './images/bumpCube.png';
 
 let bulletMesh = null;
+
+let score = 0;
+
+let restartGame = false;
 
 function loadGLTFModel(path, obj) {
     // Instantiate a loader
@@ -52,6 +55,7 @@ function removeMainScreen(element) {
     titleScreen.style.display = 'none';
     clickMe.style.display = 'none';
     instructions.style.display = 'none';
+    finishLevel.style.display = 'none'; 
 
     // Ask the browser to lock the pointer
     element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
@@ -81,6 +85,9 @@ function initPointerLock() {
     aimReticle = document.getElementById('aimReticle');
     titleScreen = document.getElementById('titleScreen');
     clickMe = document.getElementById('clickMe');
+    gameOver = document.getElementById('gameOver');
+    scoreDOM = document.getElementById('score');
+    finishLevel = document.getElementById('finishLevel');
     for (let i = 1; i <= 5; i++) {
         hearts.push(document.getElementById(`heart${i}`));
     }
@@ -219,7 +226,7 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
                 break;
             case 'enemy':
                 if (actualScene.player.controls.getCannonBody().id == e.body.id) {
-                    actualScene.player.hit = true;
+                    actualScene.player.flags.hit = true;
                 }
 
                 break;
@@ -234,7 +241,7 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
 function createGameScene() {
     let scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
-    scene.fog = new THREE.Fog(0xffffff, 0, 550);
+    scene.fog = new THREE.Fog(0xffffff, 0, 900);
     let gameScene = new GameScene(scene, initCannon(), 'prueba');
     return gameScene;
 }
@@ -287,8 +294,8 @@ function createPlayer(camera, controls) {
     let boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap });
     let box = new THREE.Mesh(boxGeometry, boxMaterial);
 
-    cubeMap = new THREE.TextureLoader().load('./images/lavatile.jpg');
-    boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap });
+    box.castShadow = true;
+    box.receiveShadow = true;
 
     let player = new Player(box, createGun(new THREE.Object3D()), controls);
 
@@ -349,7 +356,8 @@ function createSpotLight(color, pos, target) {
 function createBoxes(size, pos) {
     // Add boxes
     let cubeMap = new THREE.TextureLoader().load(futuristicCubeUrl);
-    let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap });
+    let bumpMap = new THREE.TextureLoader().load(bumpUrl);
+    let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap, bumpMap: bumpMap });
 
     let boxSize = 6;
     let halfExtents = new CANNON.Vec3(boxSize, boxSize, boxSize);
@@ -423,8 +431,8 @@ function spawnEnemies(size, pos) {
 
 function createRoom(size, height, pos, sides) {
     let cubeMap = new THREE.TextureLoader().load(floorUrl);
-    let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap });
-    //let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
+    let bumpMap = new THREE.TextureLoader().load(bumpUrl);
+    let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap, bumpMap: bumpMap });
 
     let half = size / 2;
 
@@ -550,15 +558,17 @@ function generateDungeon() {
     }
 
     let size = 300;
-    let height = 50;
+    let height = 70;
     let origin = {
         x: 0, 
         y: 0, 
         z: 0
     }
 
+    actualScene.player.controls.getCannonBody().position.set(origin.x, origin.y + height / 2, origin.z);
+
     let lastKey;
-    let cantRooms = 5;
+    let cantRooms = 4;
     let currentKey;
 
     for (let i = 0; i < cantRooms; i++) {
@@ -684,22 +694,34 @@ function createScene(canvas) {
     
     let controls = initPointerLock();
     let player = createPlayer(camera, controls);
-    generateDungeon();
-    // createBoxes();
-
-    actualScene.environment.kinematic.forEach(function (child) {
-        child.mesh.castShadow = true;
-        child.mesh.receiveShadow = true;
-    });
-
-    actualScene.environment.static.forEach(function (child) {
-        child.mesh.castShadow = true;
-        child.mesh.receiveShadow = true;
-    });
-
     actualScene.addPlayer(player);
 
-    
+    generateDungeon(); 
+}
+
+function resetGame() {
+    actualScene.restartScene();
+    actualScene.addPlayer(actualScene.player);
+    actualScene.CannonWorld.addBody(actualScene.player.controls.getCannonBody());
+    actualScene.levelFinished = false;
+
+    while(actualScene.player.health < 5) {
+        hearts.push(document.getElementById(`heart${hearts.length + 1}`));
+        hearts[hearts.length-1].style.display = 'block';
+        actualScene.player.health++;
+    }
+
+    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.4 );
+    light.position.set( 0.5, 1, 0.75 );
+    actualScene.addLight( light );
+
+    generateDungeon();
+
+    gameOver.style.display = '';
+    scoreDOM.style.display = 'block';
+
+    actualScene.paused = false;
+    restartGame = false;
 }
 
 function onWindowResize() {
@@ -713,6 +735,21 @@ function run() {
 
     let time = performance.now();
     let delta = (time - prevTime) / 1000;
+
+    if (actualScene.player.controls.getRestart()) {
+        restartGame = true;
+    }
+
+    if (restartGame) {
+        if (actualScene.gameOver) {
+            score = 0;
+            resetGame();
+        } else if (actualScene.levelFinished) {
+            resetGame();
+        } else {
+            restartGame = false;
+        }
+    }
 
     actualScene.update(delta);
 
