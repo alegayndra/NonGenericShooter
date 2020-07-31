@@ -143,15 +143,6 @@ function initPointerLock() {
             removeMainScreen(element);
         }, false);
 
-        /*
-        gameOver.addEventListener("click", event => {
-            console.log("RR");
-            if (event.keyCode === 82) {
-              console.log("RE");
-            }
-          });
-          */
-
     } else {
         instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
     }
