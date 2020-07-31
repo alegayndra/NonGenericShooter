@@ -7,9 +7,9 @@ let prevTime = performance.now();
 
 let cubeUrl = "./images/wooden_crate_2.png";
 let bulletUrl = './models/bullet.glb';
-let chestURl = "../images/minecra.png";
-let futuristicCubeUrl = '../images/futuristicCubes.png'
-let floorUrl = '../images/floor.png';
+let chestURl = "./images/minecra.png";
+let futuristicCubeUrl = './images/futuristicCubes.png'
+let floorUrl = './images/floor.png';
 
 let cubeBox;
 
@@ -342,7 +342,7 @@ function createSpotLight(color, pos, target) {
     light.position.set( pos.x, pos.y, pos.z );
     light.target.position.set( target.x, target.y, target.z );
     if(true){
-        // light.castShadow = true;
+        light.castShadow = true;
         light.shadow.camera.near = 1;
         light.shadow.camera.far = 200;
         light.shadow.camera.fov = 30;
@@ -547,7 +547,7 @@ function createRoom(size, height, pos, sides) {
     createSpotLight(0xffffff, {x: pos.x + quarter, y: height - 1, z: pos.z + quarter}, {x: pos.x + quarter, y: pos.y, z: pos.z + quarter});
     // createSpotLight(0xffffff, {x: pos.x - quarter, y: height - 1, z: pos.z + quarter}, {x: pos.x - quarter, y: pos.y, z: pos.z + quarter});
     // createSpotLight(0xffffff, {x: pos.x + quarter, y: height - 1, z: pos.z - quarter}, {x: pos.x + quarter, y: pos.y, z: pos.z - quarter});
-    createSpotLight(0xffffff, {x: pos.x - quarter, y: height - 1, z: pos.z - quarter}, {x: pos.x - quarter, y: pos.y, z: pos.z - quarter});
+    // createSpotLight(0xffffff, {x: pos.x - quarter, y: hei    ght - 1, z: pos.z - quarter}, {x: pos.x - quarter, y: pos.y, z: pos.z - quarter});
 }
 
 function generateDungeon() {
@@ -687,7 +687,7 @@ function createScene(canvas) {
 
     loadBulletModel();
 
-    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.3 );
+    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.4 );
     light.position.set( 0.5, 1, 0.75 );
     actualScene.addLight( light );
     
