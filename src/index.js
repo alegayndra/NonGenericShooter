@@ -7,9 +7,9 @@ let prevTime = performance.now();
 
 let cubeUrl = "./images/wooden_crate_2.png";
 let bulletUrl = './models/bullet.glb';
-let chestURl = "./images/minecra.png";
-let futuristicCubeUrl = './images/futuristicCubes.png'
-let floorUrl = './images/floor.png';
+let chestURl = "../images/minecra.png";
+let futuristicCubeUrl = '../images/futuristicCubes.png'
+let floorUrl = '../images/floor.png';
 
 let cubeBox;
 

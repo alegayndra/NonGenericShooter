@@ -25,6 +25,16 @@ class Enemy extends Entity {
                 }
             });
         }
+
+        this.meshMaterial = {
+            r: 0,
+            g: 0,
+            b: 0
+        };
+        this.modelLoaded = false;
+
+        this.timeHit = 0;
+        this.damaged = false;
     }
 
     shootPlayer() {
@@ -56,6 +66,15 @@ class Enemy extends Entity {
     update(delta) {
         this.timeElapsed += delta;
 
+        if (!this.modelLoaded && this.mesh.children) {
+            this.meshMaterial = {
+                r: this.mesh.children[0].material.color.r,
+                g: this.mesh.children[0].material.color.g,
+                b: this.mesh.children[0].material.color.b
+            };
+            this.modelLoaded = true;
+        }
+
         switch(this.type) {
             case 'roller':
                 this.rotate(delta);
@@ -76,8 +95,21 @@ class Enemy extends Entity {
             console.log('enemy hit');
             this.health--;
             this.hit = false;
+            this.damaged = true;
             if (this.health <= 0) {
                 actualScene.objectsToEliminate.push({obj: this, type: 'enemy'})
+            }
+            this.mesh.children[0].material.color.g = 1;
+            console.log(this.mesh.children[0].material.color.g);
+        }
+
+        if (this.damaged) {
+            this.timeHit += delta;
+            if (this.timeHit >= 0.3) {
+                console.log('aiuda')
+                this.damaged = false;
+                this.timeHit = 0;
+                this.mesh.children[0].material.color.g = this.meshMaterial.g;
             }
         }
     }
