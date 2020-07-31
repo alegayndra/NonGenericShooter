@@ -198,40 +198,27 @@ class GameScene {
         }
     }
 
+    /*
+        Resetea la escena
+    */
     restartScene() {
+        // Limpia los arreglos de la escena
         this.objectsToEliminate = [];
-        // this.enemies.forEach(enemy => {
-        //     this.objectsToEliminate.push({obj: enemy, type: 'enemy'});
-        // });
-
-        // this.environment.static.forEach(obj => {
-        //     this.objectsToEliminate.push({obj: obj, type: 'static'});
-        // });
-
-        // this.environment.kinematic.forEach(obj => {
-        //     this.objectsToEliminate.push({obj: obj, type: 'kinematic'});
-        // });
-
-        // this.bullets.forEach(bullet => {
-        //     this.objectsToEliminate.push({obj: bullet, type: 'bullet'});
-        // });
-
-        // this.eliminateObjects();
 
         this.enemies = [];
         this.environment.static = [];
         this.environment.kinematic = [];
         this.bullets = [];
 
-        console.log(this.enemies);
-
+        // Resetea los estados del juego
         this.paused = true; 
         this.gameOver = false;
+        this.levelFinished = false;
         
+        // Genera una nueva escena de ThreeJs y un nuevo mundo de CannonJS
         this.ThreeScene = new THREE.Scene();
         this.ThreeScene.background = new THREE.Color(0xffffff);
         this.ThreeScene.fog = new THREE.Fog(0xffffff, 0, 900);
-
         this.CannonWorld = initCannon();
     }
 
