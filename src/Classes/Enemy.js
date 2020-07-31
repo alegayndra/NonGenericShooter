@@ -52,6 +52,16 @@ class Enemy extends Entity {
     }
 
     /*
+        Copia el mesh de otro objeto
+        Entrada:
+        - enemy: enemigo del cual se copiara el mesh
+    */
+    copy(enemy) {
+        this.mesh = enemy.mesh.clone();
+        actualScene.ThreeScene.add(this.mesh);
+    }
+
+    /*
         Dispara en la dirección del jugador
     */
     shootPlayer() {
@@ -101,7 +111,12 @@ class Enemy extends Entity {
         this.timeElapsed += delta;
 
         // Checa si ya se cargó el modelo del enemigo para guardar los valores del color de su material
-        if (!this.modelLoaded && this.mesh.children) {
+        if (!this.modelLoaded && this.mesh.children.length == 0) {
+            if (this.type == 'roller') {
+                this.copy(rollerMesh);
+            } else {
+                this.copy(shooterMesh);
+            }
             this.meshMaterial = {
                 r: this.mesh.children[0].material.color.r,
                 g: this.mesh.children[0].material.color.g,

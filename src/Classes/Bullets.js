@@ -11,7 +11,7 @@ class Bullets extends Entity {
     }
 
     /*
-        Copial mesh de otro objeto
+        Copia el mesh de otro objeto
         Entrada:
         - bullet: bala de la cual se copiara el mesh
     */
