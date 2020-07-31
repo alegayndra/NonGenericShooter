@@ -1,7 +1,7 @@
 let camera, renderer, controls;
 let actualScene, gameScenes = [];
 
-let blocker, instructions, aimReticle, titleScreen, clickMe, gameOver, hearts = [];
+let blocker, instructions, aimReticle, titleScreen, clickMe, gameOver, scoreDOM,hearts = [];
 
 let prevTime = performance.now();
 
@@ -84,6 +84,7 @@ function initPointerLock() {
     titleScreen = document.getElementById('titleScreen');
     clickMe = document.getElementById('clickMe');
     gameOver = document.getElementById('gameOver');
+    scoreDOM = document.getElementById('score');
     for (let i = 1; i <= 5; i++) {
         hearts.push(document.getElementById(`heart${i}`));
     }

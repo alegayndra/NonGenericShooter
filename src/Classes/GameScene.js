@@ -103,11 +103,13 @@ class GameScene {
         // Checa si el juego se terminó para marcar que el juego está pausado 
         if (this.gameOver) {
             gameOver.style.display = 'block';
+            scoreDOM.style.display = 'none';
             this.paused = true;
         }
 
         // Checa si el juego está pausado
         if(!this.paused) {
+            scoreDOM.innerHTML= `Score: ${score}`;
             this.eliminateObjects();
             this.CannonWorld.step(delta);
             this.updatePos();

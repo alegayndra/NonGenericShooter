@@ -88,6 +88,14 @@
             width: 100%;
             height: 100%;
         }
+        #score {
+            position: absolute;
+            display: block;
+            z-index: 100;
+            left: 38%;
+            top: 0%;
+            color: #ffffff;
+        }
 
         #aimReticle, #heart1, #heart2, #heart3, #heart4, #heart5 {
             position: absolute;
@@ -163,6 +171,7 @@
         <img src="./images/heart.png" id="heart4">
         <img src="./images/heart.png" id="heart5">
         <img src="./images/aim.png" id="aimReticle">
+        <span style="font-size:40px" id="score"></span>
     </div>
     <script type="text/javascript">
         var canvas = document.getElementById("webglcanvas");
