@@ -332,7 +332,7 @@ function createSpotLight(color, pos, target) {
     light.position.set( pos.x, pos.y, pos.z );
     light.target.position.set( target.x, target.y, target.z );
     if(true){
-        // light.castShadow = true;
+        light.castShadow = true;
         light.shadow.camera.near = 1;
         light.shadow.camera.far = 200;
         light.shadow.camera.fov = 30;
@@ -678,7 +678,7 @@ function createScene(canvas) {
 
     loadBulletModel();
 
-    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.3 );
+    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.4 );
     light.position.set( 0.5, 1, 0.75 );
     actualScene.addLight( light );
     
