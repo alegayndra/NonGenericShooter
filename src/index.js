@@ -1,7 +1,7 @@
 let camera, renderer, controls;
 let actualScene, gameScenes = [];
 
-let blocker, instructions, aimReticle, titleScreen, clickMe, hearts = [];
+let blocker, instructions, aimReticle, titleScreen, clickMe, gameOver, hearts = [];
 
 let prevTime = performance.now();
 
@@ -81,6 +81,7 @@ function initPointerLock() {
     aimReticle = document.getElementById('aimReticle');
     titleScreen = document.getElementById('titleScreen');
     clickMe = document.getElementById('clickMe');
+    gameOver = document.getElementById('gameOver');
     for (let i = 1; i <= 5; i++) {
         hearts.push(document.getElementById(`heart${i}`));
     }
@@ -135,6 +136,15 @@ function initPointerLock() {
         clickMe.addEventListener('click', function (event) {
             removeMainScreen(element);
         }, false);
+
+        /*
+        gameOver.addEventListener("click", event => {
+            console.log("RR");
+            if (event.keyCode === 82) {
+              console.log("RE");
+            }
+          });
+          */
 
     } else {
         instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
@@ -424,7 +434,6 @@ function spawnEnemies(size, pos) {
 function createRoom(size, height, pos, sides) {
     let cubeMap = new THREE.TextureLoader().load(floorUrl);
     let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap });
-    //let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
 
     let half = size / 2;
 

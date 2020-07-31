@@ -102,6 +102,7 @@ class GameScene {
 
         // Checa si el juego se terminó para marcar que el juego está pausado 
         if (this.gameOver) {
+            gameOver.style.display = 'block';
             this.paused = true;
         }
 
