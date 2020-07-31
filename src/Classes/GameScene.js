@@ -108,6 +108,7 @@ class GameScene {
             this.paused = true;
         }
 
+        // Chcea si el jugador no ha terminado el nivel
         if (!this.levelFinished) {
             finishLevel.style.display = 'none';
         }
@@ -116,7 +117,8 @@ class GameScene {
         if(!this.paused) {
             scoreDOM.innerHTML= `Score: ${score}`;
             this.eliminateObjects();
-            console.log(this.enemies.length);
+
+            // Checa si el jugador ya eliminó a todos los enemigos para marcar que el nivel ya se terminó
             if (this.enemies.length <= 0) {
                 this.levelFinished = true;
                 finishLevel.style.display = 'block';

@@ -18,6 +18,12 @@ let score = 0;
 
 let restartGame = false;
 
+/*
+    Carga un modelo en formato GLTF
+    Entrada:
+    - path: Dirección al archivo
+    - obj:  Objeto al cual se le cargará el modelo
+*/
 function loadGLTFModel(path, obj) {
     // Instantiate a loader
     var loader = new THREE.GLTFLoader();
@@ -28,17 +34,13 @@ function loadGLTFModel(path, obj) {
         path,
         // called when the resource is loaded
         function (gltf) {
+            // Agrega todos los hijos del modelo al objeto
             let num = gltf.scene.children.length;
             for (let i = 0; i < num; i++) {
                 gltf.scene.children[0].castShadow = true;
                 gltf.scene.children[0].receiveShadow = true;
                 obj.mesh.add(gltf.scene.children[0]);
             }
-            // gltf.animations; // Array<THREE.AnimationClip>
-            // gltf.scene; // THREE.Group
-            // gltf.scenes; // Array<THREE.Group>
-            // gltf.cameras; // Array<THREE.Camera>
-            // gltf.asset; // Object
         },
         // called while loading is progressing
         function (xhr) {
@@ -79,6 +81,9 @@ function removeMainScreen(element) {
     }
 }
 
+/*
+    Crea los controles del jugador e inicializa todas las variables referentes al GUI
+*/
 function initPointerLock() {
     blocker = document.getElementById('blocker');
     instructions = document.getElementById('instructions');
@@ -147,22 +152,23 @@ function initPointerLock() {
         instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
     }
 
+    // Crea un cannon body, el cual será del jugador
     let mass = 10, radius = 10;
     let boxShape = new CANNON.Sphere(radius);
     conBody = new CANNON.Body({ mass: mass });
     conBody.addShape(boxShape);
     conBody.position.set(0, 5, 0);
     conBody.linearDamping = 0.9;
-
     conBody.position.y = 3;
-
     actualScene.CannonWorld.addBody(conBody);
-
     controls = new PointerLockControls(camera, conBody);
 
     return controls;
 }
 
+/*
+    Carga el modelo de las balas
+*/
 function loadBulletModel() {
     let size = 1;
     let halfExtents = new CANNON.Vec3(size / 2, size / 2, size);
@@ -184,35 +190,45 @@ function loadBulletModel() {
     bulletMesh.mesh.rotation.y = Math.PI / 2;
 }
 
+/*
+    Crea una bala
+    Entrada:
+    - shootVelo:        Velocidad de la bala
+    - shootDirection:   Dirección en la cual irá la bala
+    - object:           Objeto del cual se sacara la rotación y la posición de la bala
+    - r:                Radio a partir del objeto padre para que la bala se cree fuera del objeto y no colisione con el mismo
+    - parent:           Tipo de objeto que es el padre
+*/
 function createBullet(shootVelo, shootDirection, object, r, parent) {
 
-    let size = 0.3;
+    // Cannon body
     let halfExtents = new CANNON.Vec3(0.35, 0.21, 0.21);
-
     let bulletShape = new CANNON.Box(halfExtents);
     let bulletBody = new CANNON.Body({ mass: 0.00000001 });
     bulletBody.addShape(bulletShape);
 
     let bullet = new Bullets(new THREE.Object3D(), bulletBody);
 
-    bullet.copy(bulletMesh);
-
+    bullet.copy(bulletMesh); // Copia el modelo de la bala
     bullet.mesh.castShadow = true;
     bullet.mesh.receiveShadow = true;
 
+    // Rota la bala
     bulletBody.quaternion.copy(object.quaternion);
     bullet.mesh.applyQuaternion(object.quaternion);
 
     bulletBody.velocity.set(shootDirection.x * shootVelo, shootDirection.y * shootVelo, shootDirection.z * shootVelo);
 
-    // Move the ball outside the player sphere
-
+    // Se posiciona a la bala fuera del cuerpo dado
     let x = object.position.x + shootDirection.x * (r + 0.5);
     let y = object.position.y + shootDirection.y * (r + 0.5);
     let z = object.position.z + shootDirection.z * (r + 0.5);
     bulletBody.position.set(x, y, z);
     bullet.mesh.position.set(x, y, z);
 
+    // Agrega un event listener sobre el evento collide para saber si la bala colisionó con algo
+    // Cuando colisiona se elimina la bala
+    // Si choca con el jugador o con algun enemigo, se marca que este mismo fue golpeado
     bulletBody.addEventListener("collide", function (e) {
         actualScene.objectsToEliminate.push({ obj: bullet, type: 'bullet' });
         switch (parent) {
@@ -238,6 +254,9 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
     return bullet;
 }
 
+/*
+    Crea una escena del juego
+*/
 function createGameScene() {
     let scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
@@ -246,10 +265,20 @@ function createGameScene() {
     return gameScene;
 }
 
+/*
+    Crea un arma
+    Entrada:
+    - mesh: Modelo del arma
+*/
 function createGun(mesh) {
     return new Guns(mesh);
 }
 
+/*
+    Crea un enemigo
+    Entrada:
+    - type: Tipo del enemigo
+*/
 function createEnemy(type) {
 
     let enemyShape;
@@ -277,7 +306,6 @@ function createEnemy(type) {
 
     let enemy = new Enemy(new THREE.Object3D(), enemyBody, type);
     loadGLTFModel(modelUrl, enemy);
-
     enemy.mesh.castShadow = true;
     enemy.mesh.receiveShadow = true;
 
@@ -286,25 +314,26 @@ function createEnemy(type) {
     return enemy;
 }
 
-function createPlayer(camera, controls) {
+/*
+    Crea un jugador
+    Entrada:
+    - controls: Controles del jugador
+*/
+function createPlayer(controls) {
+    // Crea un mesh para el jugador
     let size = 2;
     var halfExtents = new CANNON.Vec3(size, size, size);
     var boxGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
     let cubeMap = new THREE.TextureLoader().load(cubeUrl);
     let boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap });
     let box = new THREE.Mesh(boxGeometry, boxMaterial);
-
     box.castShadow = true;
     box.receiveShadow = true;
 
     let player = new Player(box, createGun(new THREE.Object3D()), controls);
 
+    // Carga el modelo del arma
     loadGLTFModel('./models/gun.glb', player.weapon);
-
-    player.weapon.mesh.children.forEach(child => {
-        child.castShadow = true;
-        child.receiveShadow = true;
-    });
 
     return player;
 }
@@ -334,18 +363,27 @@ function createLootChest(size, x, y, z) {
 let SHADOW_MAP_WIDTH = 512;
 let SHADOW_MAP_HEIGHT = 512;
 
+
+/*
+    Crea un spotlight de ThreeJS
+    Entrada:
+    - color: Color de la luz
+    - pos:   Posición de la luz dentro de la escena
+    - taget: Posición a la cual apuntará la luz
+*/
 function createSpotLight(color, pos, target) {
     light = new THREE.SpotLight( color, 1, 350);
     light.position.set( pos.x, pos.y, pos.z );
     light.target.position.set( target.x, target.y, target.z );
-    if(true){
-        light.castShadow = true;
-        light.shadow.camera.near = 1;
-        light.shadow.camera.far = 200;
-        light.shadow.camera.fov = 30;
-        light.shadow.mapSize.width = SHADOW_MAP_WIDTH;
-        light.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
-    }
+    
+    // Activa las sombras
+    light.castShadow = true;
+    light.shadow.camera.near = 1;
+    light.shadow.camera.far = 200;
+    light.shadow.camera.fov = 45;
+    light.shadow.mapSize.width = SHADOW_MAP_WIDTH;
+    light.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
+    
     actualScene.addLight( light );
     actualScene.addLight( light.target );
 
@@ -353,35 +391,46 @@ function createSpotLight(color, pos, target) {
     // actualScene.addLight( spotLightHelper );
 }
 
+/*
+    Crea 4 cajas dentro de un cuarto
+    Entrada:
+    - size: Tamaño del cuarto
+    - pos:  Posición del cuarto dentro de la escena
+*/
 function createBoxes(size, pos) {
-    // Add boxes
+    // Carga las texturas
     let cubeMap = new THREE.TextureLoader().load(futuristicCubeUrl);
     let bumpMap = new THREE.TextureLoader().load(bumpUrl);
     let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap, bumpMap: bumpMap });
 
+    // Crea la figura de la caja
     let boxSize = 6;
     let halfExtents = new CANNON.Vec3(boxSize, boxSize, boxSize);
     let boxShape = new CANNON.Box(halfExtents);
     let boxGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
     let y = 1 + boxSize + pos.y;
+    
+    // Posiciones en las que se crearan las cajas
     let spawns = [
         {
             x: pos.x + size / 4,
-            z: pos.z + size / 4
-        },
-        {
-            x: pos.x + size / 4,
-            z: pos.z - size / 4
+            z: pos.z
         },
         {
             x: pos.x - size / 4,
+            z: pos.z
+        },
+        {
+            x: pos.x,
             z: pos.z + size / 4
         },
         {
-            x: pos.x - size / 4,
+            x: pos.x,
             z: pos.z - size / 4
         },
     ];
+
+    // Crea las 4 cajas
     for(var i = 0; i < 4; i++){
         let x = spawns[i].x;
         let z = spawns[i].z;
@@ -397,19 +446,23 @@ function createBoxes(size, pos) {
     }
 }
 
+/*
+    Genera enemigos dentro de un cuarto
+*/
 function spawnEnemies(size, pos) {
+    // Posiciones en las que se crearan los enemigos
     let spawns = [
         {
             x: pos.x + size / 4,
             z: pos.z + size / 4
         },
         {
-            x: pos.x + size / 4,
-            z: pos.z - size / 4
-        },
-        {
             x: pos.x - size / 4,
             z: pos.z + size / 4
+        },
+        {
+            x: pos.x + size / 4,
+            z: pos.z - size / 4
         },
         {
             x: pos.x - size / 4,
@@ -419,6 +472,7 @@ function spawnEnemies(size, pos) {
 
     let y = pos.y + 15;
 
+    // Genera los enemigos
     for (let i = 0; i < 4; i++) {
         let enem = createEnemy(((i % 2) ? 'roller' : 'shooter'));
 
@@ -429,25 +483,37 @@ function spawnEnemies(size, pos) {
     }
 }
 
+/*
+    Crea un cuarto
+    Entrada:
+    - size:     Tamaño del cuarto en cuanto a largo y anchura
+    - height:   Altura del cuarto
+    - pos:      Posición del cuarto dentro de la escena
+    - sides:    Lados del cuarto que se crearan
+*/
 function createRoom(size, height, pos, sides) {
+    // Carga las texturas
     let cubeMap = new THREE.TextureLoader().load(floorUrl);
     let bumpMap = new THREE.TextureLoader().load(bumpUrl);
     let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap, bumpMap: bumpMap });
 
     let half = size / 2;
 
+    // Crea arreglos con los tamaños de las paredes
     let halfExtents = {
         bottom: new CANNON.Vec3(half, 1, half),
         sides: new CANNON.Vec3(1, height / 2, half),
         front: new CANNON.Vec3(half, height / 2, 1)
     }
 
+    // Crea las figuras de las paredes de CannonJS
     let boxShapes = {
         bottom: new CANNON.Box(halfExtents.bottom),
         sides: new CANNON.Box(halfExtents.sides),
         front: new CANNON.Box(halfExtents.front)
     }
 
+    // Crea las geometrías de las paredes de ThreeJS
     let boxGeometries = {
         bottom: new THREE.BoxGeometry(halfExtents.bottom.x * 2, 2, halfExtents.bottom.z * 2),
         sides: new THREE.BoxGeometry(2, halfExtents.sides.y * 2, halfExtents.sides.z * 2),
@@ -458,17 +524,19 @@ function createRoom(size, height, pos, sides) {
 
     let boxBodies = {};
 
+    // Crea los cuerpos de CannonJS de las paredes
     for (let i = 0; i < keys.length; i++) {
         boxBodies[keys[i]] = new CANNON.Body({ mass: 0.0 });
     }
 
+    // Crea los meshes de ThreeJS de las paredes
     let boxMeshes = {
-        floor: new THREE.Mesh(boxGeometries.bottom, material),
+        floor:   new THREE.Mesh(boxGeometries.bottom, material),
         ceiling: new THREE.Mesh(boxGeometries.bottom, material),
-        front: new THREE.Mesh(boxGeometries.front, material),
-        back: new THREE.Mesh(boxGeometries.front, material),
-        right: new THREE.Mesh(boxGeometries.sides, material),
-        left: new THREE.Mesh(boxGeometries.sides, material)
+        front:   new THREE.Mesh(boxGeometries.front,  material),
+        back:    new THREE.Mesh(boxGeometries.front,  material),
+        right:   new THREE.Mesh(boxGeometries.sides,  material),
+        left:    new THREE.Mesh(boxGeometries.sides,  material)
     }
 
     let x = pos.x;
@@ -527,8 +595,7 @@ function createRoom(size, height, pos, sides) {
         boxMeshes.left.position.set(x, y, z);
     }
 
-    // let keys = Object.keys(boxBodies);
-    
+    // Agrega las paredes a la escena
     keys.forEach(key => {
         if (key === 'floor' || key === 'ceiling' || sides[key]) {
             boxMeshes[key].castShadow = true;
@@ -543,13 +610,29 @@ function createRoom(size, height, pos, sides) {
 
     let quarter = size / 4;
 
-    createSpotLight(0xffffff, {x: pos.x + quarter, y: height - 1, z: pos.z + quarter}, {x: pos.x + quarter, y: pos.y, z: pos.z + quarter});
-    // createSpotLight(0xffffff, {x: pos.x - quarter, y: height - 1, z: pos.z + quarter}, {x: pos.x - quarter, y: pos.y, z: pos.z + quarter});
-    // createSpotLight(0xffffff, {x: pos.x + quarter, y: height - 1, z: pos.z - quarter}, {x: pos.x + quarter, y: pos.y, z: pos.z - quarter});
-    // createSpotLight(0xffffff, {x: pos.x - quarter, y: hei    ght - 1, z: pos.z - quarter}, {x: pos.x - quarter, y: pos.y, z: pos.z - quarter});
+    // Crea una luz en una posición aletoria dentro del cuarto
+    let num = Math.ceil(Math.random() * 4);
+    switch(num) {
+        case 1:
+            createSpotLight(0xffffff, {x: pos.x + quarter, y: height - 1, z: pos.z + quarter}, {x: pos.x + quarter, y: pos.y, z: pos.z + quarter});
+            break;
+        case 2:
+            createSpotLight(0xffffff, {x: pos.x - quarter, y: height - 1, z: pos.z + quarter}, {x: pos.x - quarter, y: pos.y, z: pos.z + quarter});
+            break;
+        case 3:
+            createSpotLight(0xffffff, {x: pos.x + quarter, y: height - 1, z: pos.z - quarter}, {x: pos.x + quarter, y: pos.y, z: pos.z - quarter});
+            break;
+        case 4:
+            createSpotLight(0xffffff, {x: pos.x - quarter, y: height - 1, z: pos.z - quarter}, {x: pos.x - quarter, y: pos.y, z: pos.z - quarter});
+            break;
+    }
 }
 
+/*
+    Genera un nivel
+*/
 function generateDungeon() {
+    // Banderas que determinan que paredes dentro del cuarto se crearan
     let sides = {
         front: true,
         back:  true,
@@ -565,15 +648,18 @@ function generateDungeon() {
         z: 0
     }
 
+    // Posiciona al jugador en el primer cuarto
     actualScene.player.controls.getCannonBody().position.set(origin.x, origin.y + height / 2, origin.z);
 
-    let lastKey;
-    let cantRooms = 4;
-    let currentKey;
+    let cantRooms = 4;  // Cantidad de cuartos que se crearan
+    let lastKey;        // Pared que abre al cuarto anterior
+    let currentKey;     // Pared que se abrirá para el siguiente cuarto
 
     for (let i = 0; i < cantRooms; i++) {
         let offset;
         let valid = false;
+        
+        // Checa que se haya escogido una pared valida (aka que no se haya escogido la pared que ya está abierta)
         while (!valid) {
             offset = {
                 x: 0,
@@ -601,6 +687,7 @@ function generateDungeon() {
             if (currentKey !== lastKey) valid = true;
         }
     
+        // Checa si ya está en el último cuarto para no abrir una nueva pared para un nuevo cuarto inexistente
         if (i < cantRooms - 1) {
             sides[currentKey] = false;
         }
@@ -610,6 +697,10 @@ function generateDungeon() {
         origin.x += offset.x;
         origin.z += offset.z;
 
+        // Cierra la pared abierta para el cuarto anterior y se abre la que apuntaría al cuarto actual
+        // Por ejemplo, si el segundo cuarto estaba a la derecha del primero, la pared que tiene abierta es la de la izquierda
+        // Luego, abre la pared de atrás. Lo que sucede aquí es que se marca que abrá pared izquierda,
+        // pared de atrás y que no abrá pared de en frente
         if (lastKey) sides[lastKey] = true;
         sides[currentKey] = true;
         switch(currentKey) {
@@ -630,8 +721,9 @@ function generateDungeon() {
     }
 }
 
-
-
+/*
+    Se crea un mundo de CannonJS
+*/
 function initCannon() {
     // Setup our world
     let world = new CANNON.World();
@@ -667,6 +759,11 @@ function initCannon() {
     return world;
 }
 
+/*
+    Inicializa todo el juego
+    Entrada:
+    - canvas: Canvas de HTML en el cual se estará dibujando
+*/
 function createScene(canvas) {
     initCannon();
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
@@ -680,37 +777,42 @@ function createScene(canvas) {
 
     camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
 
-    // camera.position.y = 100;
-
     let scene = createGameScene();
     gameScenes.push(scene);
     actualScene = gameScenes[0];
 
     loadBulletModel();
 
+    // Luz ambiental para que se vean cosas fuera de las spotlights
     let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.4 );
     light.position.set( 0.5, 1, 0.75 );
     actualScene.addLight( light );
     
     let controls = initPointerLock();
-    let player = createPlayer(camera, controls);
+    let player = createPlayer(controls);
     actualScene.addPlayer(player);
 
     generateDungeon(); 
 }
 
+/*
+    Resetea la escena
+*/
 function resetGame() {
+    // Resetea la información de la escena del juego
     actualScene.restartScene();
     actualScene.addPlayer(actualScene.player);
     actualScene.CannonWorld.addBody(actualScene.player.controls.getCannonBody());
     actualScene.levelFinished = false;
 
+    // Resetea la vida del jugador
     while(actualScene.player.health < 5) {
         hearts.push(document.getElementById(`heart${hearts.length + 1}`));
         hearts[hearts.length-1].style.display = 'block';
         actualScene.player.health++;
     }
 
+    // Vuelve a crear la luz ambiental
     let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.4 );
     light.position.set( 0.5, 1, 0.75 );
     actualScene.addLight( light );
@@ -736,10 +838,15 @@ function run() {
     let time = performance.now();
     let delta = (time - prevTime) / 1000;
 
+    // Marca que se presionó la tecla para reiniciar el juego
     if (actualScene.player.controls.getRestart()) {
         restartGame = true;
     }
 
+    // Checa si debe resetear el juego
+    // Si el jugador perdió, se resetea el score junto con la escena
+    // Si el jugador terminó el nivel, se resetea la escena
+    // Si no, solo se marca que no se debe resetear el juego
     if (restartGame) {
         if (actualScene.gameOver) {
             score = 0;
@@ -752,9 +859,6 @@ function run() {
     }
 
     actualScene.update(delta);
-
     prevTime = time;
-
     renderer.render(actualScene.ThreeScene, actualScene.player.controls.getCamera());
-
 }
