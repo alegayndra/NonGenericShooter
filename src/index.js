@@ -25,6 +25,8 @@ function loadGLTFModel(path, obj) {
         function ( gltf ) {
             let num = gltf.scene.children.length;
             for (let i = 0; i < num; i++) {
+                gltf.scene.children[0].castShadow = true;
+                gltf.scene.children[0].receiveShadow = true;
                 obj.mesh.add( gltf.scene.children[0] );
             }
             // gltf.animations; // Array<THREE.AnimationClip>
@@ -162,7 +164,7 @@ function loadBulletModel() {
 function createBullet(shootVelo, shootDirection, object, r, parent) {
     
     let size = 0.3;
-    let halfExtents = new CANNON.Vec3(size / 2, size / 2, size);
+    let halfExtents = new CANNON.Vec3(0.35, 0.21, 0.21);
 
     let bulletShape = new CANNON.Box(halfExtents);
     let bulletBody = new CANNON.Body({ mass: 0.00000001 });
@@ -175,7 +177,7 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
     bullet.mesh.castShadow = true;
     bullet.mesh.receiveShadow = true;        
 
-    bulletBody.quaternion.copy (object.quaternion);
+    bulletBody.quaternion.copy(object.quaternion);
     bullet.mesh.applyQuaternion(object.quaternion);
 
     bulletBody.velocity.set(shootDirection.x * shootVelo, shootDirection.y * shootVelo, shootDirection.z * shootVelo);
@@ -206,7 +208,6 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
                 
                 break;
         }
-        
     });
 
     actualScene.addBullet(bullet);
@@ -228,48 +229,43 @@ function createGun(mesh) {
 
 function createEnemy(type) {
 
-    // Add boxes
-    let material = new THREE.MeshPhongMaterial( { color: 0xff9999 } );
     let enemyShape;
-    
-    let enemyGeometry;
-    
     let mass;
-
-    let y = 15;
+    let modelUrl;
 
     switch(type) {
         case 'roller':
             mass = 1;
+            modelUrl = './models/roller.glb';
             let radius = 5
             enemyShape = new CANNON.Sphere(radius);
-            enemyGeometry = new THREE.SphereGeometry(radius, 32, 32 );
             break;
         case 'shooter':
             mass = 0
-            // y = 15;
+            modelUrl = './models/shooter.glb';
             let size = 4;
             let halfExtents = new CANNON.Vec3(size, size, size);
             enemyShape = new CANNON.Box(halfExtents);
-            enemyGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
             break;
     }
 
     let enemyBody = new CANNON.Body({mass: mass});
     enemyBody.addShape(enemyShape);
     
-    let enemyMesh = new THREE.Mesh(enemyGeometry, material);
+    let enemy = new Enemy(new THREE.Object3D(), enemyBody, type);
+    loadGLTFModel(modelUrl, enemy);
 
-    enemyMesh.castShadow = true;
-    enemyMesh.receiveShadow = true;
+    // let enemyMesh = new THREE.Mesh(enemyGeometry, material);
+
+    enemy.mesh.castShadow = true;
+    enemy.mesh.receiveShadow = true;
 
     let x = (Math.random() * 50) - 25;
     let z = (Math.random() * 50) - 25;
+    let y = 15;
 
-    enemyMesh.position.set(x, y, z);
+    enemy.mesh.position.set(x, y, z);
     enemyBody.position.set(x, y, z);
-
-    let enemy = new Enemy(enemyMesh, enemyBody, type);
 
     actualScene.addEnemy(enemy);
 
@@ -453,13 +449,15 @@ function initCannon() {
 function createScene(canvas)  {
     initCannon();
     renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( window.innerWidth, window.innerHeight );
 
     window.addEventListener( 'resize', onWindowResize, false );
     
-    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+    camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 1000 );
 
     // camera.position.y = 100;
 
@@ -469,7 +467,7 @@ function createScene(canvas)  {
 
     loadBulletModel();
 
-    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.2 );
+    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.3 );
     light.position.set( 0.5, 1, 0.75 );
     actualScene.addLight( light );
 

@@ -4,7 +4,7 @@ class Enemy extends Entity {
 
         this.type = type;
 
-        this.velocity = 50;
+        this.velocity = 0.5;
 
         this.dir = {
             x: 0,
@@ -36,6 +36,7 @@ class Enemy extends Entity {
         let factorZ = (actualScene.player.controls.getObject().position.z - this.cannonBody.position.z);
         this.cannonBody.velocity.x += this.velocity * delta * factorX; 
         this.cannonBody.velocity.z += this.velocity * delta * factorZ; 
+        // this.mesh.applyQuaternion(this.cannonBody.quaternion);
     }
 
     updateDirection() {
@@ -47,20 +48,28 @@ class Enemy extends Entity {
         this.cannonBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1), this.mesh.rotation.z);
     }
 
+    rotate(delta) {
+        this.mesh.rotation.x += this.cannonBody.velocity.z * delta * 0.2;
+        this.mesh.rotation.z += this.cannonBody.velocity.x * delta * 0.2;
+    }
+
     update(delta) {
         this.timeElapsed += delta;
-        this.updateDirection();
-        let time = 1;
-        if (this.timeElapsed >= time) {
-            this.timeElapsed -= time;
-            switch(this.type) {
-                case 'roller':
-                    this.followPlayer(delta);
-                    break;
-                case 'shooter':
+
+        switch(this.type) {
+            case 'roller':
+                this.rotate(delta);
+                this.followPlayer(delta);
+                break;
+            case 'shooter':
+                this.updateDirection();
+                let time = 1;
+                if (this.timeElapsed >= time) {
+                    this.timeElapsed -= time;
                     this.shootPlayer();
-            }
+                }
         }
+        
 
         
         if (this.hit) {

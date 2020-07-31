@@ -57,12 +57,15 @@ class GameScene {
 
         if(!this.paused) {
             this.eliminateObjects();
-    
             this.CannonWorld.step(delta);
-    
-            this.player.update(delta);
             this.updatePos();
     
+            this.bullets.forEach(bullet => {
+                bullet.update(delta);
+            });
+
+            this.player.update(delta);
+            
             this.enemies.forEach(enemy => {
                 enemy.update(delta);
             });
