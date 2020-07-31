@@ -299,8 +299,8 @@ function createPlayer(camera, controls) {
     let boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap });
     let box = new THREE.Mesh(boxGeometry, boxMaterial);
 
-    cubeMap = new THREE.TextureLoader().load('./images/lavatile.jpg');
-    boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap });
+    box.castShadow = true;
+    box.receiveShadow = true;
 
     let player = new Player(box, createGun(new THREE.Object3D()), controls);
 

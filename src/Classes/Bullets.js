@@ -5,7 +5,6 @@ class Bullets extends Entity {
 
     copy(bullet) {
         this.mesh.copy(bullet.mesh);
-        // bullet.cannonBody = this.cannonBody;
     }
 
     update(delta) {
