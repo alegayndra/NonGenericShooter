@@ -535,7 +535,7 @@ function createRoom(size, height, pos, sides) {
     createSpotLight(0xffffff, {x: pos.x + quarter, y: height - 1, z: pos.z + quarter}, {x: pos.x + quarter, y: pos.y, z: pos.z + quarter});
     // createSpotLight(0xffffff, {x: pos.x - quarter, y: height - 1, z: pos.z + quarter}, {x: pos.x - quarter, y: pos.y, z: pos.z + quarter});
     // createSpotLight(0xffffff, {x: pos.x + quarter, y: height - 1, z: pos.z - quarter}, {x: pos.x + quarter, y: pos.y, z: pos.z - quarter});
-    createSpotLight(0xffffff, {x: pos.x - quarter, y: height - 1, z: pos.z - quarter}, {x: pos.x - quarter, y: pos.y, z: pos.z - quarter});
+    // createSpotLight(0xffffff, {x: pos.x - quarter, y: hei    ght - 1, z: pos.z - quarter}, {x: pos.x - quarter, y: pos.y, z: pos.z - quarter});
 }
 
 function generateDungeon() {
