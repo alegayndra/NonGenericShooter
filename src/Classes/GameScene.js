@@ -1,27 +1,56 @@
+/*
+    Clase GameScene
+    Para guardar la información referente a un nivel o escena dentro del juego
+*/
 class GameScene {
+    /*
+        Constructor
+        Entrada
+        - ThreeScene:   Escena de ThreeJS
+        - CannonWorld:  Mundo de CannonJS
+        - name:         Nombre de la escena dentro del juego
+    */
     constructor(ThreeScene, CannonWorld, name) {
         this.ThreeScene = ThreeScene;
         this.CannonWorld = CannonWorld
         this.name = name;
+
+        // Objeto del jugador
         this.player = null;
 
+        // Arreglos sobre los diferentes elementos dentro del juego
         this.enemies = [];
-        this.environment = {
-            static: [],
-            kinematic: []
+        this.environment = { // Objetos dentro del mundo
+            static: [],      // Objetos que no se mueven
+            kinematic: []    // Objetos que sí se mueve
         };
         this.bullets = [];
 
-        this.objectsToEliminate = [];
+        // Arreglo de objetos a borrar dentro de la escena
+        // Esto porque si se intenta borrar un objeto dentro del cannon world 
+        // mientras se está actualizando genera un error
+        this.objectsToEliminate = []; 
 
+        // Estados del juego
         this.paused = true; 
         this.gameOver = false;
     }
 
+    /*
+        Agrega una luz al juego
+        Entrada:
+        - light: luz de ThreeJS
+    */
     addLight(light) {
         this.ThreeScene.add(light);
     }
 
+    /*
+        Agrega un objeto del ambiente a la escena
+        Entrada:
+        - obj:  Objeto que se va a agregar de algún tipo hijo de Entity o del tipo Entity
+        - bool: Determina si el objeto es estatico o kinematico
+    */
     addEnvironment(obj, bool) {
         if (bool) {
             this.environment.kinematic.push(obj);
@@ -32,29 +61,51 @@ class GameScene {
         this.ThreeScene.add(obj.mesh);
     }
 
+    /*
+        Agrega un enemigo al juego
+        Entrada:
+        - enem: Objeto tipo Enemy
+    */
     addEnemy(enem) {
         this.enemies.push(enem)
         this.CannonWorld.addBody(enem.cannonBody);
         this.ThreeScene.add(enem.mesh);
     }
 
+    /*
+        Determina el jugador del juego
+        Entrada:
+        - player: Objeto tipo Player
+    */
     addPlayer(player) {
         this.player = player;
-        this.ThreeScene.add(player.controls.getObject());
+        this.ThreeScene.add(player.controls.getObject()); // Agrega la camara del jugador al juego
     }
 
+    /*
+        Agrega una bala al juego
+        Entrada:
+        - Bullet: Objeto de tipo Bullets
+    */
     addBullet(bullet) {
         this.bullets.push(bullet);
         this.ThreeScene.add(bullet.mesh);
         this.CannonWorld.addBody(bullet.cannonBody);
     }
 
+    /*
+        Actualiza la lógica del juego
+        Entrada:
+        - delta: tiempo que ha pasado desde el último frame del juego
+    */
     update(delta) {
 
+        // Checa si el juego se terminó para marcar que el juego está pausado 
         if (this.gameOver) {
             this.paused = true;
         }
 
+        // Checa si el juego está pausado
         if(!this.paused) {
             this.eliminateObjects();
             this.CannonWorld.step(delta);
@@ -73,6 +124,11 @@ class GameScene {
 
     }
 
+    /*
+        Elimina las geometrías y materiales de un objeto de ThreeJS y de sus hijos
+        Entrada:
+        - child: Objeto de ThreeJS
+    */
     disposeGeometries(child) {
         if (child.geometry) {
             child.geometry.dispose();
@@ -85,6 +141,11 @@ class GameScene {
         });
     }
 
+    /*
+        Elimina un objeto dentro de la escena del juego
+        Entrada:
+        - obj: Objeto dentro del mundo del juego
+    */
     disposeObj(obj) {
         const object = this.ThreeScene.getObjectByProperty( 'uuid', obj.mesh.uuid );
 
@@ -97,6 +158,9 @@ class GameScene {
 
     }
 
+    /*
+        Elimina todos los objetos que están por eliminarse
+    */
     eliminateObjects() {
         if (this.objectsToEliminate.length > 0) {
             this.objectsToEliminate.forEach(pos => {
@@ -121,6 +185,9 @@ class GameScene {
         }
     }
 
+    /*
+        Actualiza la posición de los meshes de ThreeJS a sus respectivos cuerpos dentro del Cannon World
+    */
     updatePos() {
         this.enemies.forEach(enemy => {
             enemy.updatePos();

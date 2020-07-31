@@ -43,7 +43,7 @@ function loadGLTFModel(path, obj) {
         },
         // called when loading has errors
         (error) => {
-            console.log('An error happened');
+            console.log( 'An error happened', error );
         }
     );
 }
@@ -271,17 +271,8 @@ function createEnemy(type) {
     let enemy = new Enemy(new THREE.Object3D(), enemyBody, type);
     loadGLTFModel(modelUrl, enemy);
 
-    // let enemyMesh = new THREE.Mesh(enemyGeometry, material);
-
     enemy.mesh.castShadow = true;
     enemy.mesh.receiveShadow = true;
-
-    let x = (Math.random() * 50) - 25;
-    let z = (Math.random() * 50) - 25;
-    let y = 15;
-
-    enemy.mesh.position.set(x, y, z);
-    enemyBody.position.set(x, y, z);
 
     actualScene.addEnemy(enemy);
 
@@ -333,15 +324,114 @@ function createLootChest(size, x, y, z) {
     return lootChest;
 }
 
-function createRoom(size) {
+let SHADOW_MAP_WIDTH = 512;
+let SHADOW_MAP_HEIGHT = 512;
+
+function createSpotLight(color, pos, target) {
+    light = new THREE.SpotLight( color, 1, 350);
+    light.position.set( pos.x, pos.y, pos.z );
+    light.target.position.set( target.x, target.y, target.z );
+    if(true){
+        light.castShadow = true;
+        light.shadow.camera.near = 1;
+        light.shadow.camera.far = 200;
+        light.shadow.camera.fov = 30;
+        light.shadow.mapSize.width = SHADOW_MAP_WIDTH;
+        light.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
+    }
+    actualScene.addLight( light );
+    actualScene.addLight( light.target );
+
+    // var spotLightHelper = new THREE.SpotLightHelper( light );
+    // actualScene.addLight( spotLightHelper );
+}
+
+function createBoxes(size, pos) {
+    // Add boxes
+    let cubeMap = new THREE.TextureLoader().load(futuristicCubeUrl);
+    let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap });
+
+    let boxSize = 6;
+    let halfExtents = new CANNON.Vec3(boxSize, boxSize, boxSize);
+    let boxShape = new CANNON.Box(halfExtents);
+    let boxGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
+    let y = 1 + boxSize + pos.y;
+    let spawns = [
+        {
+            x: pos.x + size / 4,
+            z: pos.z + size / 4
+        },
+        {
+            x: pos.x + size / 4,
+            z: pos.z - size / 4
+        },
+        {
+            x: pos.x - size / 4,
+            z: pos.z + size / 4
+        },
+        {
+            x: pos.x - size / 4,
+            z: pos.z - size / 4
+        },
+    ];
+    for(var i = 0; i < 4; i++){
+        let x = spawns[i].x;
+        let z = spawns[i].z;
+        let boxBody = new CANNON.Body({ mass: 1 });
+        boxBody.addShape(boxShape);
+        let boxMesh = new THREE.Mesh( boxGeometry, material );
+        let obj = new Entity(boxMesh, boxBody);
+        actualScene.addEnvironment(obj, true);
+        boxBody.position.set(x, y, z);
+        boxMesh.position.set(x, y, z);
+        boxMesh.castShadow = true;
+        boxMesh.receiveShadow = true;
+    }
+}
+
+function spawnEnemies(size, pos) {
+    let spawns = [
+        {
+            x: pos.x + size / 4,
+            z: pos.z + size / 4
+        },
+        {
+            x: pos.x + size / 4,
+            z: pos.z - size / 4
+        },
+        {
+            x: pos.x - size / 4,
+            z: pos.z + size / 4
+        },
+        {
+            x: pos.x - size / 4,
+            z: pos.z - size / 4
+        },
+    ];
+
+    let y = pos.y + 15;
+
+    for (let i = 0; i < 4; i++) {
+        let enem = createEnemy(((i % 2) ? 'roller' : 'shooter'));
+
+        let x = spawns[i].x;
+        let z = spawns[i].z;
+        enem.cannonBody.position.set(x, y, z);
+        enem.mesh.position.set(x, y, z);
+    }
+}
+
+function createRoom(size, height, pos, sides) {
     let cubeMap = new THREE.TextureLoader().load(floorUrl);
+    let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap });
     //let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
-    let material = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap })
+
+    let half = size / 2;
 
     let halfExtents = {
-        bottom: new CANNON.Vec3(size, 1, size),
-        sides: new CANNON.Vec3(1, size, size),
-        front: new CANNON.Vec3(size, size, 1)
+        bottom: new CANNON.Vec3(half, 1, half),
+        sides: new CANNON.Vec3(1, height / 2, half),
+        front: new CANNON.Vec3(half, height / 2, 1)
     }
 
     let boxShapes = {
@@ -356,13 +446,12 @@ function createRoom(size) {
         front: new THREE.BoxGeometry(halfExtents.front.x * 2, halfExtents.front.y * 2, 2)
     }
 
-    let boxBodies = {
-        floor: new CANNON.Body({ mass: 0.0 }),
-        ceiling: new CANNON.Body({ mass: 0.0 }),
-        front: new CANNON.Body({ mass: 0.0 }),
-        back: new CANNON.Body({ mass: 0.0 }),
-        right: new CANNON.Body({ mass: 0.0 }),
-        left: new CANNON.Body({ mass: 0.0 })
+    let keys = ['floor', 'ceiling', 'front', 'back', 'right', 'left'];
+
+    let boxBodies = {};
+
+    for (let i = 0; i < keys.length; i++) {
+        boxBodies[keys[i]] = new CANNON.Body({ mass: 0.0 });
     }
 
     let boxMeshes = {
@@ -374,62 +463,164 @@ function createRoom(size) {
         left: new THREE.Mesh(boxGeometries.sides, material)
     }
 
+    let x = pos.x;
+    let y = pos.y;
+    let z = pos.z;
+
     boxBodies.floor.addShape(boxShapes.bottom);
+    boxBodies.floor.position.set(x, y, z);
+    boxMeshes.floor.position.set(x, y, z);
+
+    y = height + pos.y;
+
     boxBodies.ceiling.addShape(boxShapes.bottom);
-    boxBodies.ceiling.position.y = size;
-    boxMeshes.ceiling.position.y = size;
+    boxBodies.ceiling.position.set(x, y, z);
+    boxMeshes.ceiling.position.set(x, y, z);
+    
+    y =( height / 2) + pos.y;
 
-    boxBodies.front.addShape(boxShapes.front);
-    boxBodies.back.addShape(boxShapes.front);
-    boxBodies.front.position.z = size / 2;
-    boxBodies.back.position.z = -size / 2;
-    boxMeshes.front.position.z = size / 2;
-    boxMeshes.back.position.z = -size / 2;
+    if (sides.front) {
+        boxBodies.front.addShape(boxShapes.front);
 
-    boxBodies.right.addShape(boxShapes.sides);
-    boxBodies.left.addShape(boxShapes.sides);
+        x = pos.x;
+        z = half + pos.z;
 
-    boxBodies.right.position.x = size / 2;
-    boxBodies.left.position.x = -size / 2;
+        boxBodies.front.position.set(x, y, z);
+        boxMeshes.front.position.set(x, y, z);
+    }
 
-    boxMeshes.right.position.x = size / 2;
-    boxMeshes.left.position.x = -size / 2;
+    if (sides.back) {
+        boxBodies.back.addShape(boxShapes.front);
 
-    let keys = Object.keys(boxBodies);
+        x = pos.x;
+        z = -half + pos.z;
 
+        boxBodies.back.position.set(x, y, z);
+        boxMeshes.back.position.set(x, y, z);
+    }
+
+    if (sides.right) {
+        boxBodies.right.addShape(boxShapes.sides);
+
+        x = -half + pos.x;
+        z = pos.z;
+
+        boxBodies.right.position.set(x, y, z);
+        boxMeshes.right.position.set(x, y, z);
+    }
+
+    if (sides.left) {
+        boxBodies.left.addShape(boxShapes.sides);
+
+        x = half + pos.x;
+        z = pos.z;
+
+        boxBodies.left.position.set(x, y, z);
+        boxMeshes.left.position.set(x, y, z);
+    }
+
+    // let keys = Object.keys(boxBodies);
+    
     keys.forEach(key => {
-        boxMeshes[key].castShadow = true;
-        boxMeshes[key].receiveShadow = true;
-        actualScene.addEnvironment(new Entity(boxMeshes[key], boxBodies[key]), false);
+        if (key === 'floor' || key === 'ceiling' || sides[key]) {
+            boxMeshes[key].castShadow = true;
+            boxMeshes[key].receiveShadow = true;
+            let ent = new Entity(boxMeshes[key], boxBodies[key]);
+            actualScene.addEnvironment(ent, false);
+        }
     });
+
+    createBoxes(size, pos);
+    spawnEnemies(size, pos);
+
+    let quarter = size / 4;
+
+    createSpotLight(0xffffff, {x: pos.x + quarter, y: height - 1, z: pos.z + quarter}, {x: pos.x + quarter, y: pos.y, z: pos.z + quarter});
+    // createSpotLight(0xffffff, {x: pos.x - quarter, y: height - 1, z: pos.z + quarter}, {x: pos.x - quarter, y: pos.y, z: pos.z + quarter});
+    // createSpotLight(0xffffff, {x: pos.x + quarter, y: height - 1, z: pos.z - quarter}, {x: pos.x + quarter, y: pos.y, z: pos.z - quarter});
+    // createSpotLight(0xffffff, {x: pos.x - quarter, y: hei    ght - 1, z: pos.z - quarter}, {x: pos.x - quarter, y: pos.y, z: pos.z - quarter});
 }
 
-function createBoxes() {
-    // Add boxes
-    let cubeMap = new THREE.TextureLoader().load(futuristicCubeUrl);
-    //let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
-    let material = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap })
+function generateDungeon() {
+    let sides = {
+        front: true,
+        back:  true,
+        right: true,
+        left:  true
+    }
 
-    let size = 4;
-    let halfExtents = new CANNON.Vec3(size, size, size);
-    let boxShape = new CANNON.Box(halfExtents);
-    let boxGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
-    for (var i = 0; i < 7; i++) {
-        var x = (Math.random() - 0.5) * 20;
-        var y = 1 + (Math.random() + 1) * 5;
-        var z = (Math.random() - 0.5) * 20;
-        var boxBody = new CANNON.Body({ mass: 1 });
-        boxBody.addShape(boxShape);
-        var boxMesh = new THREE.Mesh(boxGeometry, material);
-        // world.addBody(boxBody);
-        let obj = new Entity(boxMesh, boxBody);
-        actualScene.addEnvironment(obj, true);
-        boxBody.position.set(x, y, z);
-        boxMesh.position.set(x, y, z);
-        boxMesh.castShadow = true;
-        boxMesh.receiveShadow = true;
+    let size = 300;
+    let height = 50;
+    let origin = {
+        x: 0, 
+        y: 0, 
+        z: 0
+    }
+
+    let lastKey;
+    let cantRooms = 5;
+    let currentKey;
+
+    for (let i = 0; i < cantRooms; i++) {
+        let offset;
+        let valid = false;
+        while (!valid) {
+            offset = {
+                x: 0,
+                z: 0
+            };
+            let num = Math.round(Math.random() * 4);
+            switch(num) {
+                case 0: // front
+                    currentKey = 'front';
+                    offset.z = size;
+                    break;
+                case 1: // back
+                    currentKey = 'back';
+                    offset.z = -size;
+                    break;
+                case 2: // left
+                    currentKey = 'left';
+                    offset.x = size;
+                    break;
+                case 3: // right
+                    currentKey = 'right';
+                    offset.x = -size;
+                    break;
+            }
+            if (currentKey !== lastKey) valid = true;
+        }
+    
+        if (i < cantRooms - 1) {
+            sides[currentKey] = false;
+        }
+
+        createRoom(size, height, origin, sides);
+
+        origin.x += offset.x;
+        origin.z += offset.z;
+
+        if (lastKey) sides[lastKey] = true;
+        sides[currentKey] = true;
+        switch(currentKey) {
+            case 'front':
+                lastKey = 'back';
+                break;
+            case 'back':
+                lastKey = 'front';
+                break;
+            case 'left':
+                lastKey = 'right';
+                break;
+            case 'right':
+                lastKey = 'left';
+                break;
+        }
+        sides[lastKey] = false;
     }
 }
+
+
 
 function initCannon() {
     // Setup our world
@@ -487,31 +678,14 @@ function createScene(canvas) {
 
     loadBulletModel();
 
-    let light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.3);
-    light.position.set(0.5, 1, 0.75);
-    actualScene.addLight(light);
-
-    light = new THREE.SpotLight(0xffffff);
-    light.position.set(0, 30, 10);
-    light.target.position.set(0, 0, 0);
-    if (true) {
-        let SHADOW_MAP_WIDTH = 256;
-        let SHADOW_MAP_HEIGHT = 256;
-        light.castShadow = true;
-        light.shadow.camera.near = 1;
-        light.shadow.camera.far = 200;
-        light.shadow.camera.fov = 90;
-        light.shadow.mapSize.width = SHADOW_MAP_WIDTH;
-        light.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
-
-        //light.shadowCameraVisible = true;
-    }
-    actualScene.addLight(light);
-
+    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.4 );
+    light.position.set( 0.5, 1, 0.75 );
+    actualScene.addLight( light );
+    
     let controls = initPointerLock();
     let player = createPlayer(camera, controls);
-    createRoom(300);
-    createBoxes();
+    generateDungeon();
+    // createBoxes();
 
     actualScene.environment.kinematic.forEach(function (child) {
         child.mesh.castShadow = true;
@@ -525,9 +699,7 @@ function createScene(canvas) {
 
     actualScene.addPlayer(player);
 
-    for (let i = 0; i < 4; i++) {
-        createEnemy(((i % 2) ? 'roller' : 'shooter'));
-    }
+    
 }
 
 function onWindowResize() {
