@@ -27,6 +27,8 @@ class Player {
         this.frameAnimation = 0;
 
         this.hit = false;
+        this.damaged = false;
+        this.timeHit = 0;
         this.health = 5;
     }
 
@@ -83,6 +85,7 @@ class Player {
             hearts.pop()
             this.health--;
             this.hit = false;
+            this.damaged = true;
 
             this.timeToHeal = 0;
             this.healing = 0;
@@ -91,7 +94,25 @@ class Player {
             if (this.health <= 0) {
                 actualScene.gameOver = true;
             }
+
         }
+
+        if (this.damaged) {
+            this.timeHit += delta;
+            console.log(this.timeHit);
+            if (this.timeHit < 0.15) {
+                this.controls.getCamera().rotation.z += Math.PI / 2 * delta;
+            } else if (this.timeHit >= 0.3) {
+                this.controls.getCamera().rotation.z = 0;
+                this.damaged = false;
+                this.timeHit = 0;
+                console.log('finished');
+            } else if (this.timeHit >= 0.15) {
+                this.controls.getCamera().rotation.z -= Math.PI / 2 * delta;
+            }
+        }
+
+        console.log(this.damaged);
 
         this.controls.update(delta * 1000);
 
