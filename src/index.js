@@ -1,13 +1,15 @@
 let camera, renderer, controls;
 let actualScene, gameScenes = [];
 
-let blocker, instructions, aimReticle, hearts=[];
+let blocker, instructions, aimReticle, titleScreen, clickMe, hearts = [];
 
 let prevTime = performance.now();
 
 let cubeUrl = "./images/wooden_crate_2.png";
 let bulletUrl = './models/bullet.glb';
 let chestURl = "../images/minecra.png";
+let futuristicCubeUrl = '../images/futuristicCubes.png'
+let floorUrl = '../images/floor.png';
 
 let cubeBox;
 
@@ -22,12 +24,12 @@ function loadGLTFModel(path, obj) {
         // resource URL
         path,
         // called when the resource is loaded
-        function ( gltf ) {
+        function (gltf) {
             let num = gltf.scene.children.length;
             for (let i = 0; i < num; i++) {
                 gltf.scene.children[0].castShadow = true;
                 gltf.scene.children[0].receiveShadow = true;
-                obj.mesh.add( gltf.scene.children[0] );
+                obj.mesh.add(gltf.scene.children[0]);
             }
             // gltf.animations; // Array<THREE.AnimationClip>
             // gltf.scene; // THREE.Group
@@ -36,32 +38,60 @@ function loadGLTFModel(path, obj) {
             // gltf.asset; // Object
         },
         // called while loading is progressing
-        function ( xhr ) {
-            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        function (xhr) {
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
         },
         // called when loading has errors
         (error) => {
-            console.log( 'An error happened' );
+            console.log('An error happened');
         }
     );
 }
 
+function removeMainScreen(element) {
+    titleScreen.style.display = 'none';
+    clickMe.style.display = 'none';
+    instructions.style.display = 'none';
+
+    // Ask the browser to lock the pointer
+    element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+
+    if (/Firefox/i.test(navigator.userAgent)) {
+        var fullscreenchange = function (event) {
+            if (document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element) {
+                document.removeEventListener('fullscreenchange', fullscreenchange);
+                document.removeEventListener('mozfullscreenchange', fullscreenchange);
+                element.requestPointerLock();
+            }
+        }
+
+        document.addEventListener('fullscreenchange', fullscreenchange, false);
+        document.addEventListener('mozfullscreenchange', fullscreenchange, false);
+        element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
+        element.requestFullscreen();
+
+    } else {
+        element.requestPointerLock();
+    }
+}
+
 function initPointerLock() {
-    blocker = document.getElementById( 'blocker' );
-    instructions = document.getElementById( 'instructions' );
-    aimReticle = document.getElementById( 'aimReticle');
+    blocker = document.getElementById('blocker');
+    instructions = document.getElementById('instructions');
+    aimReticle = document.getElementById('aimReticle');
+    titleScreen = document.getElementById('titleScreen');
+    clickMe = document.getElementById('clickMe');
     for (let i = 1; i <= 5; i++) {
         hearts.push(document.getElementById(`heart${i}`));
     }
-    console.log(hearts);
     var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 
-    if ( havePointerLock ) {
+    if (havePointerLock) {
 
         var element = document.body;
 
-        var pointerlockchange = function ( event ) {
-            if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
+        var pointerlockchange = function (event) {
+            if (document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element) {
                 controls.enabled = true;
                 blocker.style.display = 'none';
                 actualScene.paused = false;
@@ -83,43 +113,29 @@ function initPointerLock() {
             }
         }
 
-        var pointerlockerror = function ( event ) {
+        var pointerlockerror = function (event) {
             instructions.style.display = '';
         }
 
         // Hook pointer lock state change events
-        document.addEventListener( 'pointerlockchange', pointerlockchange, false );
-        document.addEventListener( 'mozpointerlockchange', pointerlockchange, false );
-        document.addEventListener( 'webkitpointerlockchange', pointerlockchange, false );
+        document.addEventListener('pointerlockchange', pointerlockchange, false);
+        document.addEventListener('mozpointerlockchange', pointerlockchange, false);
+        document.addEventListener('webkitpointerlockchange', pointerlockchange, false);
 
-        document.addEventListener( 'pointerlockerror', pointerlockerror, false );
-        document.addEventListener( 'mozpointerlockerror', pointerlockerror, false );
-        document.addEventListener( 'webkitpointerlockerror', pointerlockerror, false );
+        document.addEventListener('pointerlockerror', pointerlockerror, false);
+        document.addEventListener('mozpointerlockerror', pointerlockerror, false);
+        document.addEventListener('webkitpointerlockerror', pointerlockerror, false);
 
-        instructions.addEventListener( 'click', function ( event ) {
-            instructions.style.display = 'none';
+        instructions.addEventListener('click', function (event) {
+            removeMainScreen(element);
+        }, false);
+        titleScreen.addEventListener('click', function (event) {
+            removeMainScreen(element);
+        }, false);
+        clickMe.addEventListener('click', function (event) {
+            removeMainScreen(element);
+        }, false);
 
-            // Ask the browser to lock the pointer
-            element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
-
-            if ( /Firefox/i.test( navigator.userAgent ) ) {
-                var fullscreenchange = function ( event ) {
-                    if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
-                        document.removeEventListener( 'fullscreenchange', fullscreenchange );
-                        document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
-                        element.requestPointerLock();
-                    }
-                }
-
-                document.addEventListener( 'fullscreenchange', fullscreenchange, false );
-                document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
-                element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
-                element.requestFullscreen();
-
-            } else {
-                element.requestPointerLock();
-            }
-        }, false );
     } else {
         instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
     }
@@ -128,14 +144,14 @@ function initPointerLock() {
     let boxShape = new CANNON.Sphere(radius);
     conBody = new CANNON.Body({ mass: mass });
     conBody.addShape(boxShape);
-    conBody.position.set(0,5,0);
+    conBody.position.set(0, 5, 0);
     conBody.linearDamping = 0.9;
 
     conBody.position.y = 3;
 
     actualScene.CannonWorld.addBody(conBody);
 
-    controls = new PointerLockControls( camera, conBody );
+    controls = new PointerLockControls(camera, conBody);
 
     return controls;
 }
@@ -154,7 +170,7 @@ function loadBulletModel() {
     bulletMesh.mesh.position.z = pos;
     bulletBody.position.z = pos;
     bulletMesh.mesh.castShadow = true;
-    bulletMesh.mesh.receiveShadow = true;  
+    bulletMesh.mesh.receiveShadow = true;
 
     loadGLTFModel(bulletUrl, bulletMesh);
 
@@ -162,7 +178,7 @@ function loadBulletModel() {
 }
 
 function createBullet(shootVelo, shootDirection, object, r, parent) {
-    
+
     let size = 0.3;
     let halfExtents = new CANNON.Vec3(0.35, 0.21, 0.21);
 
@@ -173,9 +189,9 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
     let bullet = new Bullets(new THREE.Object3D(), bulletBody);
 
     bullet.copy(bulletMesh);
-    
+
     bullet.mesh.castShadow = true;
-    bullet.mesh.receiveShadow = true;        
+    bullet.mesh.receiveShadow = true;
 
     bulletBody.quaternion.copy(object.quaternion);
     bullet.mesh.applyQuaternion(object.quaternion);
@@ -190,9 +206,9 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
     bulletBody.position.set(x, y, z);
     bullet.mesh.position.set(x, y, z);
 
-    bulletBody.addEventListener("collide",function(e){
-        actualScene.objectsToEliminate.push({obj: bullet, type: 'bullet'});
-        switch(parent) {
+    bulletBody.addEventListener("collide", function (e) {
+        actualScene.objectsToEliminate.push({ obj: bullet, type: 'bullet' });
+        switch (parent) {
             case 'player':
                 let cont = true;
                 for (let i = 0; cont && i < actualScene.enemies.length; i++) {
@@ -205,7 +221,7 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
                 if (actualScene.player.controls.getCannonBody().id == e.body.id) {
                     actualScene.player.hit = true;
                 }
-                
+
                 break;
         }
     });
@@ -217,8 +233,8 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
 
 function createGameScene() {
     let scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0xffffff );
-    scene.fog = new THREE.Fog( 0xffffff, 0, 550 );
+    scene.background = new THREE.Color(0xffffff);
+    scene.fog = new THREE.Fog(0xffffff, 0, 550);
     let gameScene = new GameScene(scene, initCannon(), 'prueba');
     return gameScene;
 }
@@ -233,7 +249,7 @@ function createEnemy(type) {
     let mass;
     let modelUrl;
 
-    switch(type) {
+    switch (type) {
         case 'roller':
             mass = 1;
             modelUrl = './models/roller.glb';
@@ -249,9 +265,9 @@ function createEnemy(type) {
             break;
     }
 
-    let enemyBody = new CANNON.Body({mass: mass});
+    let enemyBody = new CANNON.Body({ mass: mass });
     enemyBody.addShape(enemyShape);
-    
+
     let enemy = new Enemy(new THREE.Object3D(), enemyBody, type);
     loadGLTFModel(modelUrl, enemy);
 
@@ -276,12 +292,12 @@ function createPlayer(camera, controls) {
     let size = 2;
     var halfExtents = new CANNON.Vec3(size, size, size);
     var boxGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
-    let cubeMap = new THREE.TextureLoader().load(cubeUrl);    
-    let boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
-    let box = new THREE.Mesh( boxGeometry, boxMaterial );
+    let cubeMap = new THREE.TextureLoader().load(cubeUrl);
+    let boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap });
+    let box = new THREE.Mesh(boxGeometry, boxMaterial);
 
-    cubeMap = new THREE.TextureLoader().load('./images/lavatile.jpg');    
-    boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
+    cubeMap = new THREE.TextureLoader().load('./images/lavatile.jpg');
+    boxMaterial = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap });
 
     let player = new Player(box, createGun(new THREE.Object3D()), controls);
 
@@ -297,18 +313,18 @@ function createPlayer(camera, controls) {
 
 function createLootChest(size, x, y, z) {
     let sizeBox = size;
-    let boxGeometry = new THREE.BoxGeometry( sizeBox, sizeBox, sizeBox );
+    let boxGeometry = new THREE.BoxGeometry(sizeBox, sizeBox, sizeBox);
     let chestMap = new THREE.TextureLoader().load(chestURl);
     let cubeMap = new THREE.TextureLoader().load(cubeUrl);
     let boxMaterial = [
-        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: chestMap } ),
-        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap } ),
-        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: chestMap } ),
-        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap } ),
-        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: chestMap } ),
-        new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: chestMap } )
+        new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: chestMap }),
+        new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap }),
+        new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: chestMap }),
+        new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap }),
+        new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: chestMap }),
+        new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: chestMap })
     ];
-    let box = new THREE.Mesh( boxGeometry, boxMaterial );
+    let box = new THREE.Mesh(boxGeometry, boxMaterial);
     box.position.z = z;
     box.position.x = y;
     box.position.y = x;
@@ -318,7 +334,9 @@ function createLootChest(size, x, y, z) {
 }
 
 function createRoom(size) {
-    let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
+    let cubeMap = new THREE.TextureLoader().load(floorUrl);
+    //let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
+    let material = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap })
 
     let halfExtents = {
         bottom: new CANNON.Vec3(size, 1, size),
@@ -328,32 +346,32 @@ function createRoom(size) {
 
     let boxShapes = {
         bottom: new CANNON.Box(halfExtents.bottom),
-        sides:  new CANNON.Box(halfExtents.sides),
-        front:  new CANNON.Box(halfExtents.front)
+        sides: new CANNON.Box(halfExtents.sides),
+        front: new CANNON.Box(halfExtents.front)
     }
 
     let boxGeometries = {
-        bottom: new THREE.BoxGeometry(halfExtents.bottom.x * 2, 2,                       halfExtents.bottom.z * 2),
-        sides:  new THREE.BoxGeometry(2,                        halfExtents.sides.y * 2, halfExtents.sides.z * 2),
-        front:  new THREE.BoxGeometry(halfExtents.front.x * 2,  halfExtents.front.y * 2, 2)
+        bottom: new THREE.BoxGeometry(halfExtents.bottom.x * 2, 2, halfExtents.bottom.z * 2),
+        sides: new THREE.BoxGeometry(2, halfExtents.sides.y * 2, halfExtents.sides.z * 2),
+        front: new THREE.BoxGeometry(halfExtents.front.x * 2, halfExtents.front.y * 2, 2)
     }
 
     let boxBodies = {
-        floor:   new CANNON.Body({ mass: 0.0 }),
+        floor: new CANNON.Body({ mass: 0.0 }),
         ceiling: new CANNON.Body({ mass: 0.0 }),
-        front:   new CANNON.Body({ mass: 0.0 }),
-        back:    new CANNON.Body({ mass: 0.0 }),
-        right:   new CANNON.Body({ mass: 0.0 }),
-        left:    new CANNON.Body({ mass: 0.0 })
+        front: new CANNON.Body({ mass: 0.0 }),
+        back: new CANNON.Body({ mass: 0.0 }),
+        right: new CANNON.Body({ mass: 0.0 }),
+        left: new CANNON.Body({ mass: 0.0 })
     }
 
     let boxMeshes = {
-        floor:   new THREE.Mesh( boxGeometries.bottom, material ),
-        ceiling: new THREE.Mesh( boxGeometries.bottom, material ),
-        front:   new THREE.Mesh( boxGeometries.front,  material ),
-        back:    new THREE.Mesh( boxGeometries.front,  material ),
-        right:   new THREE.Mesh( boxGeometries.sides,  material ),
-        left:    new THREE.Mesh( boxGeometries.sides,  material )
+        floor: new THREE.Mesh(boxGeometries.bottom, material),
+        ceiling: new THREE.Mesh(boxGeometries.bottom, material),
+        front: new THREE.Mesh(boxGeometries.front, material),
+        back: new THREE.Mesh(boxGeometries.front, material),
+        right: new THREE.Mesh(boxGeometries.sides, material),
+        left: new THREE.Mesh(boxGeometries.sides, material)
     }
 
     boxBodies.floor.addShape(boxShapes.bottom);
@@ -378,7 +396,7 @@ function createRoom(size) {
     boxMeshes.left.position.x = -size / 2;
 
     let keys = Object.keys(boxBodies);
-    
+
     keys.forEach(key => {
         boxMeshes[key].castShadow = true;
         boxMeshes[key].receiveShadow = true;
@@ -388,24 +406,26 @@ function createRoom(size) {
 
 function createBoxes() {
     // Add boxes
-    let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
+    let cubeMap = new THREE.TextureLoader().load(futuristicCubeUrl);
+    //let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
+    let material = new THREE.MeshPhongMaterial({ specular: 0xffffff, flatShading: true, map: cubeMap })
 
     let size = 4;
     let halfExtents = new CANNON.Vec3(size, size, size);
     let boxShape = new CANNON.Box(halfExtents);
-    let boxGeometry = new THREE.BoxGeometry(halfExtents.x*2,halfExtents.y*2,halfExtents.z*2);
-    for(var i=0; i<7; i++){
-        var x = (Math.random()-0.5)*20;
-        var y = 1 + (Math.random() + 1) * 5 ;
-        var z = (Math.random()-0.5)*20;
+    let boxGeometry = new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2);
+    for (var i = 0; i < 7; i++) {
+        var x = (Math.random() - 0.5) * 20;
+        var y = 1 + (Math.random() + 1) * 5;
+        var z = (Math.random() - 0.5) * 20;
         var boxBody = new CANNON.Body({ mass: 1 });
         boxBody.addShape(boxShape);
-        var boxMesh = new THREE.Mesh( boxGeometry, material );
+        var boxMesh = new THREE.Mesh(boxGeometry, material);
         // world.addBody(boxBody);
         let obj = new Entity(boxMesh, boxBody);
         actualScene.addEnvironment(obj, true);
-        boxBody.position.set(x,y,z);
-        boxMesh.position.set(x,y,z);
+        boxBody.position.set(x, y, z);
+        boxMesh.position.set(x, y, z);
         boxMesh.castShadow = true;
         boxMesh.receiveShadow = true;
     }
@@ -425,39 +445,39 @@ function initCannon() {
     solver.iterations = 7;
     solver.tolerance = 0.1;
     var split = true;
-    if(split)
+    if (split)
         world.solver = new CANNON.SplitSolver(solver);
     else
         world.solver = solver;
 
-    world.gravity.set(0,-90,0);
+    world.gravity.set(0, -90, 0);
     world.broadphase = new CANNON.NaiveBroadphase();
 
     // Create a slippery material (friction coefficient = 0.0)
     physicsMaterial = new CANNON.Material("slipperyMaterial");
     var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial,
-                                                            physicsMaterial,
-                                                            -0.0, // friction coefficient
-                                                            0.3  // restitution
-                                                            );
+        physicsMaterial,
+        -0.0, // friction coefficient
+        0.3  // restitution
+    );
     // We must add the contact materials to the world
     world.addContactMaterial(physicsContactMaterial);
 
     return world;
 }
 
-function createScene(canvas)  {
+function createScene(canvas) {
     initCannon();
-    renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
-    window.addEventListener( 'resize', onWindowResize, false );
-    
-    camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 1000 );
+    window.addEventListener('resize', onWindowResize, false);
+
+    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
 
     // camera.position.y = 100;
 
@@ -467,14 +487,14 @@ function createScene(canvas)  {
 
     loadBulletModel();
 
-    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.3 );
-    light.position.set( 0.5, 1, 0.75 );
-    actualScene.addLight( light );
+    let light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.3);
+    light.position.set(0.5, 1, 0.75);
+    actualScene.addLight(light);
 
-    light = new THREE.SpotLight( 0xffffff );
-    light.position.set( 0, 30, 10 );
-    light.target.position.set( 0, 0, 0 );
-    if(true){
+    light = new THREE.SpotLight(0xffffff);
+    light.position.set(0, 30, 10);
+    light.target.position.set(0, 0, 0);
+    if (true) {
         let SHADOW_MAP_WIDTH = 256;
         let SHADOW_MAP_HEIGHT = 256;
         light.castShadow = true;
@@ -486,7 +506,7 @@ function createScene(canvas)  {
 
         //light.shadowCameraVisible = true;
     }
-    actualScene.addLight( light );
+    actualScene.addLight(light);
 
     let controls = initPointerLock();
     let player = createPlayer(camera, controls);
@@ -513,19 +533,19 @@ function createScene(canvas)  {
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function run() {
-    requestAnimationFrame( run );
+    requestAnimationFrame(run);
 
     let time = performance.now();
-    let delta = ( time - prevTime ) / 1000;
+    let delta = (time - prevTime) / 1000;
 
     actualScene.update(delta);
 
     prevTime = time;
 
-    renderer.render( actualScene.ThreeScene, actualScene.player.controls.getCamera() );
+    renderer.render(actualScene.ThreeScene, actualScene.player.controls.getCamera());
 
 }

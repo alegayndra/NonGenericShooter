@@ -55,6 +55,30 @@
             cursor: pointer;
         }
 
+        #titleScreen {
+            position: absolute;
+            display: block;
+            z-index: 100;
+            left: 0%;
+            top: 0%;
+            width: 100%;
+            height: 100%;
+        }
+        #clickMe {
+            position: absolute;
+            display: block;
+            z-index: 100;
+            left: 19%;
+            top: 70%;
+            animation: blinker 1s linear infinite;
+    }
+
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
+        }
+
         #aimReticle, #heart1, #heart2, #heart3, #heart4, #heart5 {
             position: absolute;
             display: none;
@@ -121,6 +145,8 @@
         <canvas id="webglcanvas"></canvas>
     </div>
     <div id="ui">
+        <img src="./images/TitleScreen.jpg" id="titleScreen">
+        <img src="./images/click.png" id="clickMe">
         <img src="./images/heart.png" id="heart1">
         <img src="./images/heart.png" id="heart2">
         <img src="./images/heart.png" id="heart3">
