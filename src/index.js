@@ -232,7 +232,7 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
                 break;
             case 'enemy':
                 if (actualScene.player.controls.getCannonBody().id == e.body.id) {
-                    actualScene.player.hit = true;
+                    actualScene.player.flags.hit = true;
                 }
 
                 break;

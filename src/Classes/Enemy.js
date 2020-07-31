@@ -21,7 +21,7 @@ class Enemy extends Entity {
         if (type == 'roller') {
             cannonBody.addEventListener("collide",function(e){
                 if (actualScene.player.controls.getCannonBody().id == e.body.id) {
-                    actualScene.player.hit = true;
+                    actualScene.player.flags.hit = true;
                 }
             });
         }
@@ -93,6 +93,7 @@ class Enemy extends Entity {
             this.health--;
             this.hit = false;
             this.damaged = true;
+            score += Math.ceil(Math.random() * 3);
             if (this.health <= 0) {
                 actualScene.objectsToEliminate.push({obj: this, type: 'enemy'});
                 score += 10;

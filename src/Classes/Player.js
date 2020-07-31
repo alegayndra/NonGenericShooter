@@ -30,9 +30,9 @@ class Player {
         // Banderas sobre estados del jugador
         this.flags = {
             shooting: false,
-            hit = false,
-            damaged = false,
-            healing = false
+            hit: false,
+            damaged: false,
+            healing: false
         }
 
         // Acumuladores de tiempo
