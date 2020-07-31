@@ -27,6 +27,8 @@ class Player {
         this.frameAnimation = 0;
 
         this.hit = false;
+        this.damaged = false;
+        this.timeHit = 0;
         this.health = 5;
     }
 
@@ -78,11 +80,11 @@ class Player {
 
         }
         if (this.hit) {
-            console.log('player hit');
             hearts[hearts.length-1].style.display = 'none'
             hearts.pop()
             this.health--;
             this.hit = false;
+            this.damaged = true;
 
             this.timeToHeal = 0;
             this.healing = 0;
@@ -90,6 +92,20 @@ class Player {
 
             if (this.health <= 0) {
                 actualScene.gameOver = true;
+            }
+
+        }
+
+        if (this.damaged) {
+            this.timeHit += delta;
+            if (this.timeHit < 0.15) {
+                this.controls.getCamera().rotation.z += Math.PI / 2 * delta;
+            } else if (this.timeHit >= 0.3) {
+                this.controls.getCamera().rotation.z = 0;
+                this.damaged = false;
+                this.timeHit = 0;
+            } else if (this.timeHit >= 0.15) {
+                this.controls.getCamera().rotation.z -= Math.PI / 2 * delta;
             }
         }
 
