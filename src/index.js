@@ -10,6 +10,7 @@ let bulletUrl = './models/bullet.glb';
 let chestURl = "./images/minecra.png";
 let futuristicCubeUrl = './images/futuristicCubes.png'
 let floorUrl = './images/floor.png';
+let bumpUrl = './images/bumpCube.png';
 
 let cubeBox;
 
@@ -362,7 +363,8 @@ function createSpotLight(color, pos, target) {
 function createBoxes(size, pos) {
     // Add boxes
     let cubeMap = new THREE.TextureLoader().load(futuristicCubeUrl);
-    let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap });
+    let bumpMap = new THREE.TextureLoader().load(bumpUrl);
+    let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap, bumpMap: bumpMap });
 
     let boxSize = 6;
     let halfExtents = new CANNON.Vec3(boxSize, boxSize, boxSize);
@@ -436,7 +438,8 @@ function spawnEnemies(size, pos) {
 
 function createRoom(size, height, pos, sides) {
     let cubeMap = new THREE.TextureLoader().load(floorUrl);
-    let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap });
+    let bumpMap = new THREE.TextureLoader().load(bumpUrl);
+    let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap, bumpMap: bumpMap });
 
     let half = size / 2;
 
