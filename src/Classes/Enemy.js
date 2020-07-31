@@ -25,7 +25,7 @@ class Enemy extends Entity {
         }
 
         // Atributos del enemigo
-        this.velocity = 0.5;
+        this.velocity = 1;
         this.health = 3;
 
         // Dirección en la que el enemigo está yendo

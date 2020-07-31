@@ -454,19 +454,23 @@ function spawnEnemies(size, pos) {
     let spawns = [
         {
             x: pos.x + size / 4,
-            z: pos.z + size / 4
+            z: pos.z + size / 4,
+            type: 'shooter'
         },
         {
             x: pos.x - size / 4,
-            z: pos.z + size / 4
+            z: pos.z + size / 4,
+            type: 'roller'
         },
         {
             x: pos.x + size / 4,
-            z: pos.z - size / 4
+            z: pos.z - size / 4,
+            type: 'shooter'
         },
         {
             x: pos.x - size / 4,
-            z: pos.z - size / 4
+            z: pos.z - size / 4,
+            type: 'roller'
         },
     ];
 
@@ -474,12 +478,16 @@ function spawnEnemies(size, pos) {
 
     // Genera los enemigos
     for (let i = 0; i < 4; i++) {
-        let enem = createEnemy(((i % 2) ? 'roller' : 'shooter'));
-
-        let x = spawns[i].x;
-        let z = spawns[i].z;
-        enem.cannonBody.position.set(x, y, z);
-        enem.mesh.position.set(x, y, z);
+        let num = 1;
+        if (spawns[i].type == 'roller') num = 4;
+        for (let j = 0; j < num; j++) {
+            let enem = createEnemy(spawns[i].type);
+    
+            let x = spawns[i].x;
+            let z = spawns[i].z;
+            enem.cannonBody.position.set(x, y, z);
+            enem.mesh.position.set(x, y, z);
+        }
     }
 }
 
