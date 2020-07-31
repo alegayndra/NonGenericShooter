@@ -348,7 +348,8 @@ function createSpotLight(color, pos, target) {
 
 function createBoxes(size, pos) {
     // Add boxes
-    let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
+    let cubeMap = new THREE.TextureLoader().load(futuristicCubeUrl);
+    let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap });
 
     let boxSize = 6;
     let halfExtents = new CANNON.Vec3(boxSize, boxSize, boxSize);
@@ -421,7 +422,9 @@ function spawnEnemies(size, pos) {
 }
 
 function createRoom(size, height, pos, sides) {
-    let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
+    let cubeMap = new THREE.TextureLoader().load(floorUrl);
+    let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap });
+    //let material = new THREE.MeshPhongMaterial( { color: 0xdddddd } );
 
     let half = size / 2;
 
