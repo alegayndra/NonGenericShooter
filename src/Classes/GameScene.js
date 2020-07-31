@@ -117,7 +117,7 @@ class GameScene {
             scoreDOM.innerHTML= `Score: ${score}`;
             this.eliminateObjects();
             console.log(this.enemies.length);
-            if (this.enemies.length == 0) {
+            if (this.enemies.length <= 0) {
                 this.levelFinished = true;
                 finishLevel.style.display = 'block';
             }

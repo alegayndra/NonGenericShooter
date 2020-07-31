@@ -112,11 +112,11 @@ class Enemy extends Entity {
 
         // Checa si ya se cargó el modelo del enemigo para guardar los valores del color de su material
         if (!this.modelLoaded && this.mesh.children.length == 0) {
-            if (this.type == 'roller') {
-                this.copy(rollerMesh);
-            } else {
-                this.copy(shooterMesh);
-            }
+            // if (this.type == 'roller') {
+            //     this.copy(rollerMesh);
+            // } else {
+            //     this.copy(shooterMesh);
+            // }
             this.meshMaterial = {
                 r: this.mesh.children[0].material.color.r,
                 g: this.mesh.children[0].material.color.g,
