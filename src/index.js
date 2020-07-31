@@ -12,11 +12,11 @@ let futuristicCubeUrl = './images/futuristicCubes.png'
 let floorUrl = './images/floor.png';
 let bumpUrl = './images/bumpCube.png';
 
-let cubeBox;
-
 let bulletMesh = null;
 
 let score = 0;
+
+let restartGame = false;
 
 function loadGLTFModel(path, obj) {
     // Instantiate a loader
@@ -248,7 +248,7 @@ function createBullet(shootVelo, shootDirection, object, r, parent) {
 function createGameScene() {
     let scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
-    scene.fog = new THREE.Fog(0xffffff, 0, 550);
+    scene.fog = new THREE.Fog(0xffffff, 0, 900);
     let gameScene = new GameScene(scene, initCannon(), 'prueba');
     return gameScene;
 }
@@ -565,12 +565,14 @@ function generateDungeon() {
     }
 
     let size = 300;
-    let height = 50;
+    let height = 70;
     let origin = {
         x: 0, 
         y: 0, 
         z: 0
     }
+
+    actualScene.player.controls.getCannonBody().position.set(origin.x, origin.y + height / 2, origin.z);
 
     let lastKey;
     let cantRooms = 5;
@@ -699,22 +701,33 @@ function createScene(canvas) {
     
     let controls = initPointerLock();
     let player = createPlayer(camera, controls);
-    generateDungeon();
-    // createBoxes();
-
-    actualScene.environment.kinematic.forEach(function (child) {
-        child.mesh.castShadow = true;
-        child.mesh.receiveShadow = true;
-    });
-
-    actualScene.environment.static.forEach(function (child) {
-        child.mesh.castShadow = true;
-        child.mesh.receiveShadow = true;
-    });
-
     actualScene.addPlayer(player);
 
-    
+    generateDungeon(); 
+}
+
+function resetGame() {
+    actualScene.restartScene();
+    actualScene.addPlayer(actualScene.player);
+    actualScene.CannonWorld.addBody(actualScene.player.controls.getCannonBody());
+
+    while(actualScene.player.health < 5) {
+        hearts.push(document.getElementById(`heart${hearts.length + 1}`));
+        hearts[hearts.length-1].style.display = 'block';
+        actualScene.player.health++;
+    }
+
+    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.4 );
+    light.position.set( 0.5, 1, 0.75 );
+    actualScene.addLight( light );
+
+    generateDungeon();
+
+    gameOver.style.display = '';
+    scoreDOM.style.display = 'block';
+
+    actualScene.paused = false;
+    restartGame = false;
 }
 
 function onWindowResize() {
@@ -728,6 +741,21 @@ function run() {
 
     let time = performance.now();
     let delta = (time - prevTime) / 1000;
+
+    if (actualScene.player.controls.getRestart()) {
+        restartGame = true;
+    }
+
+    if (restartGame) {
+        if (actualScene.gameOver) {
+            score = 0;
+            resetGame();
+        } else if (actualScene.levelFinished) {
+            resetGame();
+        } else {
+            restartGame = false;
+        }
+    }
 
     actualScene.update(delta);
 

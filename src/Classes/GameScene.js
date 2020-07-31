@@ -34,6 +34,7 @@ class GameScene {
         // Estados del juego
         this.paused = true; 
         this.gameOver = false;
+        this.levelFinished = false;
     }
 
     /*
@@ -111,6 +112,9 @@ class GameScene {
         if(!this.paused) {
             scoreDOM.innerHTML= `Score: ${score}`;
             this.eliminateObjects();
+            if (this.enemies.length == 0) {
+                this.levelFinished = true;
+            }
             this.CannonWorld.step(delta);
             this.updatePos();
     
@@ -186,6 +190,43 @@ class GameScene {
             renderer.renderLists.dispose();
             this.objectsToEliminate = [];
         }
+    }
+
+    restartScene() {
+        this.objectsToEliminate = [];
+        // this.enemies.forEach(enemy => {
+        //     this.objectsToEliminate.push({obj: enemy, type: 'enemy'});
+        // });
+
+        // this.environment.static.forEach(obj => {
+        //     this.objectsToEliminate.push({obj: obj, type: 'static'});
+        // });
+
+        // this.environment.kinematic.forEach(obj => {
+        //     this.objectsToEliminate.push({obj: obj, type: 'kinematic'});
+        // });
+
+        // this.bullets.forEach(bullet => {
+        //     this.objectsToEliminate.push({obj: bullet, type: 'bullet'});
+        // });
+
+        // this.eliminateObjects();
+
+        this.enemies = [];
+        this.environment.static = [];
+        this.environment.kinematic = [];
+        this.bullets = [];
+
+        console.log(this.enemies);
+
+        this.paused = true; 
+        this.gameOver = false;
+        
+        this.ThreeScene = new THREE.Scene();
+        this.ThreeScene.background = new THREE.Color(0xffffff);
+        this.ThreeScene.fog = new THREE.Fog(0xffffff, 0, 900);
+
+        this.CannonWorld = initCannon();
     }
 
     /*
