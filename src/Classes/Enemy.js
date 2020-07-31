@@ -94,7 +94,8 @@ class Enemy extends Entity {
             this.hit = false;
             this.damaged = true;
             if (this.health <= 0) {
-                actualScene.objectsToEliminate.push({obj: this, type: 'enemy'})
+                actualScene.objectsToEliminate.push({obj: this, type: 'enemy'});
+                score += 10;
             }
             this.mesh.children[0].material.color.g = 1;
         }

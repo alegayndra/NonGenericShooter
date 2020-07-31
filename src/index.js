@@ -15,6 +15,8 @@ let cubeBox;
 
 let bulletMesh = null;
 
+let score = 0;
+
 function loadGLTFModel(path, obj) {
     // Instantiate a loader
     var loader = new THREE.GLTFLoader();
