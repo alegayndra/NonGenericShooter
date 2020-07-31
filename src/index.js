@@ -575,7 +575,7 @@ function generateDungeon() {
     actualScene.player.controls.getCannonBody().position.set(origin.x, origin.y + height / 2, origin.z);
 
     let lastKey;
-    let cantRooms = 5;
+    let cantRooms = 4;
     let currentKey;
 
     for (let i = 0; i < cantRooms; i++) {
