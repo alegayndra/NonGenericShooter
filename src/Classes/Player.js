@@ -80,7 +80,6 @@ class Player {
 
         }
         if (this.hit) {
-            console.log('player hit');
             hearts[hearts.length-1].style.display = 'none'
             hearts.pop()
             this.health--;
@@ -111,8 +110,6 @@ class Player {
                 this.controls.getCamera().rotation.z -= Math.PI / 2 * delta;
             }
         }
-
-        console.log(this.damaged);
 
         this.controls.update(delta * 1000);
 
