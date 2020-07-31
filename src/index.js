@@ -1,7 +1,7 @@
 let camera, renderer, controls;
 let actualScene, gameScenes = [];
 
-let blocker, instructions, aimReticle, titleScreen, clickMe, gameOver, scoreDOM,hearts = [];
+let blocker, instructions, aimReticle, titleScreen, clickMe, gameOver, scoreDOM, finishLevel, hearts = [];
 
 let prevTime = performance.now();
 
@@ -55,6 +55,7 @@ function removeMainScreen(element) {
     titleScreen.style.display = 'none';
     clickMe.style.display = 'none';
     instructions.style.display = 'none';
+    finishLevel.style.display = 'none'; 
 
     // Ask the browser to lock the pointer
     element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
@@ -86,6 +87,7 @@ function initPointerLock() {
     clickMe = document.getElementById('clickMe');
     gameOver = document.getElementById('gameOver');
     scoreDOM = document.getElementById('score');
+    finishLevel = document.getElementById('finishLevel');
     for (let i = 1; i <= 5; i++) {
         hearts.push(document.getElementById(`heart${i}`));
     }
@@ -140,15 +142,6 @@ function initPointerLock() {
         clickMe.addEventListener('click', function (event) {
             removeMainScreen(element);
         }, false);
-
-        /*
-        gameOver.addEventListener("click", event => {
-            console.log("RR");
-            if (event.keyCode === 82) {
-              console.log("RE");
-            }
-          });
-          */
 
     } else {
         instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
@@ -710,6 +703,7 @@ function resetGame() {
     actualScene.restartScene();
     actualScene.addPlayer(actualScene.player);
     actualScene.CannonWorld.addBody(actualScene.player.controls.getCannonBody());
+    actualScene.levelFinished = false;
 
     while(actualScene.player.health < 5) {
         hearts.push(document.getElementById(`heart${hearts.length + 1}`));

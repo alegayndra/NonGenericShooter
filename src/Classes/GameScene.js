@@ -108,12 +108,18 @@ class GameScene {
             this.paused = true;
         }
 
+        if (!this.levelFinished) {
+            finishLevel.style.display = 'none';
+        }
+
         // Checa si el juego está pausado
         if(!this.paused) {
             scoreDOM.innerHTML= `Score: ${score}`;
             this.eliminateObjects();
+            console.log(this.enemies.length);
             if (this.enemies.length == 0) {
                 this.levelFinished = true;
+                finishLevel.style.display = 'block';
             }
             this.CannonWorld.step(delta);
             this.updatePos();

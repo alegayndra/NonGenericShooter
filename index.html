@@ -55,6 +55,19 @@
             cursor: pointer;
         }
 
+        #finishLevel {
+            position: absolute;
+            display: 'block';
+            z-index: 100;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            animation: blinker 1s linear infinite;
+            color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
         #titleScreen {
             position: absolute;
             display: block;
@@ -63,6 +76,7 @@
             top: 0%;
             width: 100%;
             height: 100%;
+            
         }
         #clickMe {
             position: absolute;
@@ -92,8 +106,9 @@
             position: absolute;
             display: block;
             z-index: 100;
-            left: 38%;
-            top: 0%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            top: 3%;
             color: #ffffff;
         }
 
@@ -162,6 +177,11 @@
         <canvas id="webglcanvas"></canvas>
     </div>
     <div id="ui">
+        <div id="finishLevel">
+            <span style="font-size:40px" id="">LEVEL CLEARED</span>
+                <br>
+            <span>Press "R" to go the next level</span>
+        </div>
         <img src="./images/TitleScreen.jpg" id="titleScreen">
         <img src="./images/click.png" id="clickMe">
         <img src="./images/gameOver.jpg" id="gameOver">
