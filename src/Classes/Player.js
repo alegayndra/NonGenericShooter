@@ -98,14 +98,12 @@ class Player {
 
         if (this.damaged) {
             this.timeHit += delta;
-            console.log(this.timeHit);
             if (this.timeHit < 0.15) {
                 this.controls.getCamera().rotation.z += Math.PI / 2 * delta;
             } else if (this.timeHit >= 0.3) {
                 this.controls.getCamera().rotation.z = 0;
                 this.damaged = false;
                 this.timeHit = 0;
-                console.log('finished');
             } else if (this.timeHit >= 0.15) {
                 this.controls.getCamera().rotation.z -= Math.PI / 2 * delta;
             }

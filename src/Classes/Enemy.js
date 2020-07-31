@@ -89,7 +89,7 @@ class Enemy extends Entity {
         }
         
         if (this.hit) {
-            console.log('enemy hit');
+            // console.log('enemy hit');
             this.health--;
             this.hit = false;
             this.damaged = true;
@@ -97,13 +97,11 @@ class Enemy extends Entity {
                 actualScene.objectsToEliminate.push({obj: this, type: 'enemy'})
             }
             this.mesh.children[0].material.color.g = 1;
-            console.log(this.mesh.children[0].material.color.g);
         }
 
         if (this.damaged) {
             this.timeHit += delta;
             if (this.timeHit >= 0.3) {
-                console.log('aiuda')
                 this.damaged = false;
                 this.timeHit = 0;
                 this.mesh.children[0].material.color.g = this.meshMaterial.g;
