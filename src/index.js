@@ -53,6 +53,9 @@ function loadGLTFModel(path, obj) {
     );
 }
 
+/*
+    Quita los elementos de la pantalla principal y empieza a mostrar el hud del juego
+*/
 function removeMainScreen(element) {
     titleScreen.style.display = 'none';
     clickMe.style.display = 'none';
@@ -338,6 +341,14 @@ function createPlayer(controls) {
     return player;
 }
 
+/*
+    Crea un cofre de loot
+    Entrada:
+    - size: Tamaño del cofre,
+    - x: Posicion en x del cofre
+    - y: Posicion en y del cofre
+    - z: Posicion en z del cofre
+*/
 function createLootChest(size, x, y, z) {
     let sizeBox = size;
     let boxGeometry = new THREE.BoxGeometry(sizeBox, sizeBox, sizeBox);
