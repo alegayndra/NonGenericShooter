@@ -255,17 +255,8 @@ function createEnemy(type) {
     let enemy = new Enemy(new THREE.Object3D(), enemyBody, type);
     loadGLTFModel(modelUrl, enemy);
 
-    // let enemyMesh = new THREE.Mesh(enemyGeometry, material);
-
     enemy.mesh.castShadow = true;
     enemy.mesh.receiveShadow = true;
-
-    let x = (Math.random() * 50) - 25;
-    let z = (Math.random() * 50) - 25;
-    let y = 15;
-
-    enemy.mesh.position.set(x, y, z);
-    enemyBody.position.set(x, y, z);
 
     actualScene.addEnemy(enemy);
 
@@ -321,12 +312,9 @@ let SHADOW_MAP_WIDTH = 512;
 let SHADOW_MAP_HEIGHT = 512;
 
 function createSpotLight(color, pos, target) {
-    // console.log('pos light', pos);
-    // console.log('pos target', target);
-    light = new THREE.SpotLight( color)//, 1, 350);
+    light = new THREE.SpotLight( color, 1, 350);
     light.position.set( pos.x, pos.y, pos.z );
     light.target.position.set( target.x, target.y, target.z );
-    // light.target.position.set( 0, 0, 0);
     if(true){
         // light.castShadow = true;
         light.shadow.camera.near = 1;
@@ -334,8 +322,6 @@ function createSpotLight(color, pos, target) {
         light.shadow.camera.fov = 30;
         light.shadow.mapSize.width = SHADOW_MAP_WIDTH;
         light.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
-
-        // light.shadowCameraVisible = true;
     }
     actualScene.addLight( light );
     actualScene.addLight( light.target );
@@ -386,10 +372,36 @@ function createBoxes(size, pos) {
     }
 }
 
-function spawnEnemies() {
-    // for (let i = 0; i < 4; i++) {
-    //     createEnemy(((i % 2) ? 'roller' : 'shooter'));
-    // }
+function spawnEnemies(size, pos) {
+    let spawns = [
+        {
+            x: pos.x + size / 4,
+            z: pos.z + size / 4
+        },
+        {
+            x: pos.x + size / 4,
+            z: pos.z - size / 4
+        },
+        {
+            x: pos.x - size / 4,
+            z: pos.z + size / 4
+        },
+        {
+            x: pos.x - size / 4,
+            z: pos.z - size / 4
+        },
+    ];
+
+    let y = pos.y + 15;
+
+    for (let i = 0; i < 4; i++) {
+        let enem = createEnemy(((i % 2) ? 'roller' : 'shooter'));
+
+        let x = spawns[i].x;
+        let z = spawns[i].z;
+        enem.cannonBody.position.set(x, y, z);
+        enem.mesh.position.set(x, y, z);
+    }
 }
 
 function createRoom(size, height, pos, sides) {
@@ -415,13 +427,12 @@ function createRoom(size, height, pos, sides) {
         front:  new THREE.BoxGeometry(halfExtents.front.x * 2,  halfExtents.front.y * 2, 2)
     }
 
-    let boxBodies = {
-        floor:   new CANNON.Body({ mass: 0.0 }),
-        ceiling: new CANNON.Body({ mass: 0.0 }),
-        front:   new CANNON.Body({ mass: 0.0 }),
-        back:    new CANNON.Body({ mass: 0.0 }),
-        right:   new CANNON.Body({ mass: 0.0 }),
-        left:    new CANNON.Body({ mass: 0.0 })
+    let keys = ['floor', 'ceiling', 'front', 'back', 'right', 'left'];
+
+    let boxBodies = {};
+
+    for (let i = 0; i < keys.length; i++) {
+        boxBodies[keys[i]] = new CANNON.Body({ mass: 0.0 });
     }
 
     let boxMeshes = {
@@ -457,8 +468,6 @@ function createRoom(size, height, pos, sides) {
 
         boxBodies.front.position.set(x, y, z);
         boxMeshes.front.position.set(x, y, z);
-
-        // addEntity(boxBodies.ceiling);
     }
 
     if (sides.back) {
@@ -491,19 +500,19 @@ function createRoom(size, height, pos, sides) {
         boxMeshes.left.position.set(x, y, z);
     }
 
-    let keys = Object.keys(boxBodies);
+    // let keys = Object.keys(boxBodies);
     
     keys.forEach(key => {
         if (key === 'floor' || key === 'ceiling' || sides[key]) {
             boxMeshes[key].castShadow = true;
             boxMeshes[key].receiveShadow = true;
             let ent = new Entity(boxMeshes[key], boxBodies[key]);
-            // console.log(ent.mesh.position);
             actualScene.addEnvironment(ent, false);
         }
     });
 
     createBoxes(size, pos);
+    spawnEnemies(size, pos);
 
     let quarter = size / 4;
 
@@ -531,6 +540,7 @@ function generateDungeon() {
 
     let lastKey;
     let cantRooms = 5;
+    let currentKey;
 
     for (let i = 0; i < cantRooms; i++) {
         let offset;
