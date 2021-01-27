@@ -58,7 +58,7 @@ class Enemy extends Entity {
     */
     copy(enemy) {
         this.mesh = enemy.mesh.clone();
-        actualScene.ThreeScene.add(this.mesh);
+        // actualScene.ThreeScene.add(this.mesh);
     }
 
     /*
