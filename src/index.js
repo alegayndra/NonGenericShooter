@@ -240,36 +240,36 @@ function initCannon() {
     Entrada:
     - canvas: Canvas de HTML en el cual se estará dibujando
 */
-function createScene(canvas) {
-    initCannon();
-    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    window.addEventListener('resize', onWindowResize, false);
-
-    camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
-
-    let scene = createGameScene();
-    gameScenes.push(scene);
-    actualScene = gameScenes[0];
-
-    loadBulletModel();
-    loadEnemiesModels();
-
-    // Luz ambiental para que se vean cosas fuera de las spotlights
-    let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.4 );
-    light.position.set( 0.5, 1, 0.75 );
-    actualScene.addLight( light );
+async function createScene(canvas) {
+    loadModels().then(() => {
+        console.log('loaded models');
+        initCannon();
+        renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     
-    let controls = initPointerLock();
-    let player = createPlayer(controls);
-    actualScene.addPlayer(player);
-
-    generateDungeon(); 
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    
+        window.addEventListener('resize', onWindowResize, false);
+    
+        camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
+    
+        let scene = createGameScene();
+        gameScenes.push(scene);
+        actualScene = gameScenes[0];
+    
+        // Luz ambiental para que se vean cosas fuera de las spotlights
+        let light = new THREE.HemisphereLight( 0xeeeeff, 0x777788, 0.4 );
+        light.position.set( 0.5, 1, 0.75 );
+        actualScene.addLight( light );
+        
+        let controls = initPointerLock();
+        let player = createPlayer(controls);
+        actualScene.addPlayer(player);
+    
+        generateDungeon(); 
+    });
 }
 
 /*

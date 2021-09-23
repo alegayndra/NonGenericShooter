@@ -34,12 +34,14 @@ async function loadGLTFModel(path, obj) {
     let loader = new THREE.GLTFLoader();
 
     // Load a glTF resource
-    loader.load(
+    await loader.load(
         // resource URL
         path,
         // called when the resource is loaded
         function (gltf) {
             // Agrega todos los hijos del modelo al objeto
+            console.log(path);
+            console.log(gltf.scene.children.length, gltf.scene.children);
             let num = gltf.scene.children.length;
             for (let i = 0; i < num; i++) {
                 gltf.scene.children[0].castShadow = true;
@@ -58,10 +60,16 @@ async function loadGLTFModel(path, obj) {
     );
 }
 
+async function loadModels() {
+    console.log('loading models');
+    loadBulletModel()
+    loadEnemiesModels();
+}
+
 /*
     Carga el modelo de las balas
 */
-function loadBulletModel() {
+async function loadBulletModel() {
     let size = 1;
     let halfExtents = new CANNON.Vec3(size / 2, size / 2, size);
 
@@ -77,7 +85,7 @@ function loadBulletModel() {
     bulletMesh.mesh.castShadow = true;
     bulletMesh.mesh.receiveShadow = true;
 
-    loadGLTFModel(bulletUrl, bulletMesh);
+    await loadGLTFModel(bulletUrl, bulletMesh);
 
     bulletMesh.mesh.rotation.y = Math.PI / 2;
 }
@@ -85,7 +93,7 @@ function loadBulletModel() {
 /*
     Carga el modelo de las balas
 */
-function loadEnemiesModels() {
+async function loadEnemiesModels() {
     enemiesModels.forEach(model => {
         let enemyBody = new CANNON.Body({ mass: model.mass });
         enemyBody.addShape(model.enemyShape);
