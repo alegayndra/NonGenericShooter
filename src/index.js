@@ -490,7 +490,7 @@ function spawnEnemies(size, pos) {
     // Genera los enemigos
     for (let i = 0; i < 4; i++) {
         let num = 1;
-        if (spawns[i].type == 'roller') num = 4;
+        // if (spawns[i].type == 'roller') num = 4;
         for (let j = 0; j < num; j++) {
             let enem = createEnemy(spawns[i].type);
     
