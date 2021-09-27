@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <title>Non Generic Shooter</title>
     <meta charset="utf-8">
     <link rel="icon" type="image/png" href="./images/aim.png" sizes="64x64">
@@ -27,48 +26,44 @@
     <script src="./src/GenerateLevel.js"></script>
     <script src="./src/index.js"></script>
 
-</head>
+  </head>
 
-<body>
+  <body>
 
     <div id="blocker">
-
-        <div id="instructions">
-            <span style="font-size:40px">PAUSED</span>
-            <br />
-        </div>
+      <div id="instructions">
+        <span style="font-size:40px">PAUSED</span>
+        <br />
+      </div>
     </div>
 
     <div id="container">
-        <canvas id="webglcanvas"></canvas>
+      <canvas id="webglcanvas"></canvas>
     </div>
     <div id="ui">
-        <div id="finishLevel">
-            <span style="font-size:40px" id="">LEVEL CLEARED</span>
-                <br>
-            <span>Press "R" to go the next level</span>
-        </div>
-        <img src="./images/TitleScreen.jpg" id="titleScreen">
-        <img src="./images/click.png" id="clickMe">
-        <img src="./images/gameOver.jpg" id="gameOver">
-        <img src="./images/heart.png" id="heart1">
-        <img src="./images/heart.png" id="heart2">
-        <img src="./images/heart.png" id="heart3">
-        <img src="./images/heart.png" id="heart4">
-        <img src="./images/heart.png" id="heart5">
-        <img src="./images/aim.png" id="aimReticle">
-        <span style="font-size:40px" id="score"></span>
+      <div id="finishLevel">
+        <span style="font-size:40px" id="">LEVEL CLEARED</span>
+          <br>
+        <span>Press "R" to go the next level</span>
+      </div>
+      <img src="./images/TitleScreen.jpg" id="titleScreen">
+      <img src="./images/click.png" id="clickMe">
+      <img src="./images/gameOver.jpg" id="gameOver">
+      <img src="./images/heart.png" id="heart1">
+      <img src="./images/heart.png" id="heart2">
+      <img src="./images/heart.png" id="heart3">
+      <img src="./images/heart.png" id="heart4">
+      <img src="./images/heart.png" id="heart5">
+      <img src="./images/aim.png" id="aimReticle">
+      <span style="font-size:40px" id="score"></span>
     </div>
     <script type="text/javascript">
-        var canvas = document.getElementById("webglcanvas");
+      var canvas = document.getElementById("webglcanvas");
 
-        // create the scene
-        createScene(canvas).then(() => {
-            run();
-        });
+      // create the scene
+      createScene(canvas);
 
+      run();
     </script>
-
-</body>
-
+  </body>
 </html>
