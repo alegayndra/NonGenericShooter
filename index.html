@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <title>Non Generic Shooter</title>
     <meta charset="utf-8">
     <link rel="icon" type="image/png" href="./images/aim.png" sizes="64x64">
@@ -9,142 +8,140 @@
     <link rel="stylesheet" href="./css/threejsPointerLock.css" />
 
     <style>
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-        }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+      }
 
-        body {
-            background-color: #ffffff;
-            margin: 0;
-            overflow: hidden;
-            font-family: arial;
-        }
+      body {
+        background-color: #ffffff;
+        margin: 0;
+        overflow: hidden;
+        font-family: arial;
+      }
 
-        #blocker {
-            position: absolute;
+      #blocker {
+        position: absolute;
 
-            width: 100%;
-            height: 100%;
+        width: 100%;
+        height: 100%;
 
-            background-color: rgba(0, 0, 0, 0.5);
-        }
+        background-color: rgba(0, 0, 0, 0.5);
+      }
 
-        #instructions {
-            width: 100%;
-            height: 100%;
+      #instructions {
+        width: 100%;
+        height: 100%;
 
-            display: -webkit-box;
-            display: -moz-box;
-            display: box;
+        display: -webkit-box;
+        display: -moz-box;
+        display: box;
 
-            -webkit-box-orient: horizontal;
-            -moz-box-orient: horizontal;
-            box-orient: horizontal;
+        -webkit-box-orient: horizontal;
+        -moz-box-orient: horizontal;
+        box-orient: horizontal;
 
-            -webkit-box-pack: center;
-            -moz-box-pack: center;
-            box-pack: center;
+        -webkit-box-pack: center;
+        -moz-box-pack: center;
+        box-pack: center;
 
-            -webkit-box-align: center;
-            -moz-box-align: center;
-            box-align: center;
+        -webkit-box-align: center;
+        -moz-box-align: center;
+        box-align: center;
 
-            color: #ffffff;
-            text-align: center;
-            cursor: pointer;
-        }
+        color: #ffffff;
+        text-align: center;
+        cursor: pointer;
+      }
 
-        #finishLevel {
-            position: absolute;
-            display: 'block';
-            z-index: 100;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            animation: blinker 1s linear infinite;
-            color: #ffffff;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
+      #finishLevel {
+        position: absolute;
+        display: 'block';
+        z-index: 100;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        animation: blinker 1s linear infinite;
+        color: #ffffff;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
 
-        #titleScreen {
-            position: absolute;
-            display: block;
-            z-index: 100;
-            left: 0%;
-            top: 0%;
-            width: 100%;
-            height: 100%;
-            
-        }
-        #clickMe {
-            position: absolute;
-            display: block;
-            z-index: 100;
-            left: 19%;
-            top: 70%;
-            animation: blinker 1s linear infinite;
-        }
+      #titleScreen {
+        position: absolute;
+        display: block;
+        z-index: 100;
+        left: 0%;
+        top: 0%;
+        width: 100%;
+        height: 100%;
+      }
+      #clickMe {
+        position: absolute;
+        display: block;
+        z-index: 100;
+        left: 19%;
+        top: 70%;
+        animation: blinker 1s linear infinite;
+      }
 
-        @keyframes blinker {
-            50% {
-                opacity: 0;
-            }
+      @keyframes blinker {
+        50% {
+          opacity: 0;
         }
+      }
 
-        #gameOver {
-            position: absolute;
-            display: none;
-            z-index: 100;
-            left: 0%;
-            top: 0%;
-            width: 100%;
-            height: 100%;
-        }
-        #score {
-            position: absolute;
-            display: block;
-            z-index: 100;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            top: 3%;
-            color: #ffffff;
-        }
+      #gameOver {
+        position: absolute;
+        display: none;
+        z-index: 100;
+        left: 0%;
+        top: 0%;
+        width: 100%;
+        height: 100%;
+      }
+      #score {
+        position: absolute;
+        display: block;
+        z-index: 100;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        top: 3%;
+        color: #ffffff;
+      }
 
-        #aimReticle, #heart1, #heart2, #heart3, #heart4, #heart5 {
-            position: absolute;
-            display: none;
-            z-index: 99;
-            width: 60px;
-            height: 60px;
-        }
-        #aimReticle {
-            left: 47.5%;
-            top: 46%;
-        }
-        #heart1 {
-            left: 0%;
-            top: 0%;
-        }
-        #heart2 {
-            left: 3%;
-            top: 0%;
-        }
-        #heart3 {
-            left: 6%;
-            top: 0%;
-        }
-        #heart4 {
-            left: 9%;
-            top: 0%;
-        }
-        #heart5 {
-            left: 12%;
-            top: 0%;
-        }
-
+      #aimReticle, #heart1, #heart2, #heart3, #heart4, #heart5 {
+        position: absolute;
+        display: none;
+        z-index: 99;
+        width: 60px;
+        height: 60px;
+      }
+      #aimReticle {
+        left: 47.5%;
+        top: 46%;
+      }
+      #heart1 {
+        left: 0%;
+        top: 0%;
+      }
+      #heart2 {
+        left: 3%;
+        top: 0%;
+      }
+      #heart3 {
+        left: 6%;
+        top: 0%;
+      }
+      #heart4 {
+        left: 9%;
+        top: 0%;
+      }
+      #heart5 {
+        left: 12%;
+        top: 0%;
+      }
     </style>
 
     <script src="./libs/three.js/three.js"></script>
@@ -162,47 +159,44 @@
     <script src="./src/Classes/GameScene.js"></script>
     <script src="./src/index.js"></script>
 
-</head>
+  </head>
 
-<body>
+  <body>
 
     <div id="blocker">
-
-        <div id="instructions">
-            <span style="font-size:40px">PAUSED</span>
-            <br />
-        </div>
+      <div id="instructions">
+        <span style="font-size:40px">PAUSED</span>
+        <br />
+      </div>
     </div>
 
     <div id="container">
-        <canvas id="webglcanvas"></canvas>
+      <canvas id="webglcanvas"></canvas>
     </div>
     <div id="ui">
-        <div id="finishLevel">
-            <span style="font-size:40px" id="">LEVEL CLEARED</span>
-                <br>
-            <span>Press "R" to go the next level</span>
-        </div>
-        <img src="./images/TitleScreen.jpg" id="titleScreen">
-        <img src="./images/click.png" id="clickMe">
-        <img src="./images/gameOver.jpg" id="gameOver">
-        <img src="./images/heart.png" id="heart1">
-        <img src="./images/heart.png" id="heart2">
-        <img src="./images/heart.png" id="heart3">
-        <img src="./images/heart.png" id="heart4">
-        <img src="./images/heart.png" id="heart5">
-        <img src="./images/aim.png" id="aimReticle">
-        <span style="font-size:40px" id="score"></span>
+      <div id="finishLevel">
+        <span style="font-size:40px" id="">LEVEL CLEARED</span>
+          <br>
+        <span>Press "R" to go the next level</span>
+      </div>
+      <img src="./images/TitleScreen.jpg" id="titleScreen">
+      <img src="./images/click.png" id="clickMe">
+      <img src="./images/gameOver.jpg" id="gameOver">
+      <img src="./images/heart.png" id="heart1">
+      <img src="./images/heart.png" id="heart2">
+      <img src="./images/heart.png" id="heart3">
+      <img src="./images/heart.png" id="heart4">
+      <img src="./images/heart.png" id="heart5">
+      <img src="./images/aim.png" id="aimReticle">
+      <span style="font-size:40px" id="score"></span>
     </div>
     <script type="text/javascript">
-        var canvas = document.getElementById("webglcanvas");
+      var canvas = document.getElementById("webglcanvas");
 
-        // create the scene
-        createScene(canvas);
+      // create the scene
+      createScene(canvas);
 
-        run();
+      run();
     </script>
-
-</body>
-
+  </body>
 </html>
