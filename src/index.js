@@ -205,25 +205,26 @@ function initCannon() {
   world.quatNormalizeSkip = 0;
   world.quatNormalizeFast = false;
 
-  var solver = new CANNON.GSSolver();
+  let solver = new CANNON.GSSolver();
 
   world.defaultContactMaterial.contactEquationStiffness = 1e9;
   world.defaultContactMaterial.contactEquationRelaxation = 4;
 
   solver.iterations = 7;
   solver.tolerance = 0.1;
-  var split = true;
-  if (split)
+  let split = true;
+  if (split) {
     world.solver = new CANNON.SplitSolver(solver);
-  else
+  } else {
     world.solver = solver;
+  }
 
   world.gravity.set(0, -90, 0);
   world.broadphase = new CANNON.NaiveBroadphase();
 
   // Create a slippery material (friction coefficient = 0.0)
   physicsMaterial = new CANNON.Material("slipperyMaterial");
-  var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial,
+  let physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial,
     physicsMaterial,
     -0.0, // friction coefficient
     0.3  // restitution
@@ -239,9 +240,8 @@ function initCannon() {
   Entrada:
   - canvas: Canvas de HTML en el cual se estará dibujando
 */
-async function createScene(canvas) {
+function createScene(canvas) {
   loadModels().then(() => {
-    console.log('loaded models');
     initCannon();
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     renderer.shadowMap.enabled = true;
@@ -267,7 +267,8 @@ async function createScene(canvas) {
     let player = createPlayer(controls);
     actualScene.addPlayer(player);
 
-    generateDungeon(); 
+    generateDungeon();
+    run();
   });
 }
 
@@ -315,7 +316,7 @@ function run() {
   let delta = (time - prevTime) / 1000;
 
   // Marca que se presionó la tecla para reiniciar el juego
-  if (actualScene.player.controls.getRestart()) {
+  if (actualScene?.player?.controls?.getRestart()) {
     restartGame = true;
   }
 
@@ -334,7 +335,7 @@ function run() {
     }
   }
 
-  actualScene.update(delta);
+  actualScene?.update(delta);
   prevTime = time;
-  renderer.render(actualScene.ThreeScene, actualScene.player.controls.getCamera());
+  renderer?.render(actualScene.ThreeScene, actualScene.player.controls.getCamera());
 }
