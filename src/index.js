@@ -22,7 +22,7 @@ function removeMainScreen(element) {
   element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
 
   if (/Firefox/i.test(navigator.userAgent)) {
-    var fullscreenchange = function (event) {
+    let fullscreenchange = function (event) {
       if (document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element) {
         document.removeEventListener('fullscreenchange', fullscreenchange);
         document.removeEventListener('mozfullscreenchange', fullscreenchange);
@@ -55,12 +55,12 @@ function initPointerLock() {
   for (let i = 1; i <= 5; i++) {
     hearts.push(document.getElementById(`heart${i}`));
   }
-  var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
+  let havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 
   if (havePointerLock) {
-    var element = document.body;
+    let element = document.body;
 
-    var pointerlockchange = function (event) {
+    let pointerlockchange = function (event) {
       if (document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element) {
         controls.enabled = true;
         blocker.style.display = 'none';
@@ -83,7 +83,7 @@ function initPointerLock() {
       }
     }
 
-    var pointerlockerror = function (event) {
+    let pointerlockerror = function (event) {
       instructions.style.display = '';
     }
 
