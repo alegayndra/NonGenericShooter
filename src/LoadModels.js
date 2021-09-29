@@ -5,6 +5,14 @@ const futuristicCubeUrl = './images/futuristicCubes.png'
 const floorUrl = './images/floor.png';
 const bumpUrl = './images/bumpCube.png';
 
+// Texturas
+let boxCubeMap;
+let boxBumpMap;
+let boxMaterial;
+let roomCubeMap;
+let roomBumpMap;
+let roomMaterial;
+
 const enemiesModels = [
   {
     mass: 1,
@@ -54,9 +62,28 @@ async function loadGLTFModel(path, obj) {
   success(gltfData);
 }
 
+
+async function loadTextures() {
+  // Instantiate a loader
+  let loader = new THREE.TextureLoader();
+
+  function textureLoader(url) {
+    return new Promise((resolve, reject) => {
+      loader.load(url, data => resolve(data), null, reject);
+    });
+  }
+
+  boxCubeMap = await textureLoader(futuristicCubeUrl);
+  boxBumpMap = await textureLoader(bumpUrl);
+  roomCubeMap = await textureLoader(floorUrl);
+  roomBumpMap = await textureLoader(bumpUrl);
+  boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: boxCubeMap, bumpMap: boxBumpMap });
+  roomMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: roomCubeMap, bumpMap: roomBumpMap });
+}
 async function loadModels() {
   await loadBulletModel()
   await loadEnemiesModels();
+  await loadTextures();
 }
 
 /*

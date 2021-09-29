@@ -5,11 +5,6 @@
   - pos:  Posición del cuarto dentro de la escena
 */
 function createBoxes(size, pos) {
-  // Carga las texturas
-  let cubeMap = new THREE.TextureLoader().load(futuristicCubeUrl);
-  let bumpMap = new THREE.TextureLoader().load(bumpUrl);
-  let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap, bumpMap: bumpMap });
-
   // Crea la figura de la caja
   let boxSize = 6;
   let halfExtents = new CANNON.Vec3(boxSize, boxSize, boxSize);
@@ -43,7 +38,7 @@ function createBoxes(size, pos) {
     let z = spawns[i].z;
     let boxBody = new CANNON.Body({ mass: 1 });
     boxBody.addShape(boxShape);
-    let boxMesh = new THREE.Mesh( boxGeometry, material );
+    let boxMesh = new THREE.Mesh( boxGeometry, boxMaterial );
     let obj = new Entity(boxMesh, boxBody);
     actualScene.addEnvironment(obj, true);
     boxBody.position.set(x, y, z);
@@ -105,11 +100,6 @@ function spawnEnemies(size, pos) {
 */
 
 function createRoom(size, height, pos, sides) {
-  // Carga las texturas
-  let cubeMap = new THREE.TextureLoader().load(floorUrl);
-  let bumpMap = new THREE.TextureLoader().load(bumpUrl);
-  let material = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map: cubeMap, bumpMap: bumpMap });
-
   let half = size / 2;
 
   // Crea arreglos con los tamaños de las paredes
@@ -144,12 +134,12 @@ function createRoom(size, height, pos, sides) {
 
   // Crea los meshes de ThreeJS de las paredes
   let boxMeshes = {
-    floor:   new THREE.Mesh(boxGeometries.bottom, material),
-    ceiling: new THREE.Mesh(boxGeometries.bottom, material),
-    front:   new THREE.Mesh(boxGeometries.front,  material),
-    back:    new THREE.Mesh(boxGeometries.front,  material),
-    right:   new THREE.Mesh(boxGeometries.sides,  material),
-    left:    new THREE.Mesh(boxGeometries.sides,  material)
+    floor:   new THREE.Mesh(boxGeometries.bottom, roomMaterial),
+    ceiling: new THREE.Mesh(boxGeometries.bottom, roomMaterial),
+    front:   new THREE.Mesh(boxGeometries.front,  roomMaterial),
+    back:    new THREE.Mesh(boxGeometries.front,  roomMaterial),
+    right:   new THREE.Mesh(boxGeometries.sides,  roomMaterial),
+    left:    new THREE.Mesh(boxGeometries.sides,  roomMaterial)
   }
 
   let x = pos.x;
@@ -264,7 +254,7 @@ function generateDungeon() {
   // Posiciona al jugador en el primer cuarto
   actualScene.player.controls.getCannonBody().position.set(origin.x, origin.y + height / 2, origin.z);
 
-  let cantRooms = 1;  // Cantidad de cuartos que se crearan
+  let cantRooms = 4;  // Cantidad de cuartos que se crearan
   let lastKey;        // Pared que abre al cuarto anterior
   let currentKey;     // Pared que se abrirá para el siguiente cuarto
 
