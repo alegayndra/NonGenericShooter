@@ -81,19 +81,16 @@ function spawnEnemies(size, pos) {
     },
   ];
 
-  let y = pos.y + 15;
+  let y = pos.y + 20;
 
   // Genera los enemigos
-  for (let i = 0; i < 4; i++) {
+  for (let spawn of spawns) {
     let num = 1;
-    if (spawns[i].type == 'roller') num = 4;
+    if (spawn.type == 'roller') num = 4;
     for (let j = 0; j < num; j++) {
-      let enem = createEnemy(spawns[i].type);
-
-      let x = spawns[i].x;
-      let z = spawns[i].z;
-      enem.cannonBody.position.set(x, y, z);
-      enem.mesh.position.set(x, y, z);
+      let enem = createEnemy(spawn.type);
+      enem.cannonBody.position.set(spawn.x, y + (j * 10), spawn.z);
+      enem.mesh.position.set(spawn.x, y + (j * 10), spawn.z);
     }
   }
 }
@@ -250,24 +247,24 @@ function createRoom(size, height, pos, sides) {
 function generateDungeon() {
   // Banderas que determinan que paredes dentro del cuarto se crearan
   let sides = {
-      front: true,
-      back:  true,
-      right: true,
-      left:  true
+    front: true,
+    back:  true,
+    right: true,
+    left:  true
   }
 
   let size = 300;
   let height = 70;
   let origin = {
-      x: 0, 
-      y: 0, 
-      z: 0
+    x: 0, 
+    y: 0, 
+    z: 0
   }
 
   // Posiciona al jugador en el primer cuarto
   actualScene.player.controls.getCannonBody().position.set(origin.x, origin.y + height / 2, origin.z);
 
-  let cantRooms = 4;  // Cantidad de cuartos que se crearan
+  let cantRooms = 1;  // Cantidad de cuartos que se crearan
   let lastKey;        // Pared que abre al cuarto anterior
   let currentKey;     // Pared que se abrirá para el siguiente cuarto
 
