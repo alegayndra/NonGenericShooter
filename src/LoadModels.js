@@ -35,9 +35,7 @@ async function loadGLTFModel(path, obj) {
 
   function modelLoader(url) {
     return new Promise((resolve, reject) => {
-      loader.load(url, data => resolve(data), (xhr) => {
-        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-      }, reject);
+      loader.load(url, data => resolve(data), null, reject);
     });
   }
 
@@ -45,8 +43,6 @@ async function loadGLTFModel(path, obj) {
 
   function success(gltf) {
     // Agrega todos los hijos del modelo al objeto
-    console.log(path);
-    console.log(gltf.scene.children.length, gltf.scene.children);
     let num = gltf.scene.children.length;
     for (let i = 0; i < num; i++) {
       gltf.scene.children[0].castShadow = true;
@@ -64,7 +60,7 @@ async function loadModels() {
 }
 
 /*
-    Carga el modelo de las balas
+  Carga el modelo de las balas
 */
 async function loadBulletModel() {
   let size = 1;
