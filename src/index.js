@@ -1,4 +1,4 @@
-let camera, renderer, controls;
+let camera, renderer, controls, listener, backgroundMusic;
 let actualScene, gameScenes = [];
 
 let blocker, instructions, aimReticle, titleScreen, clickMe, gameOver, scoreDOM, finishLevel, hearts = [];
@@ -38,6 +38,8 @@ function removeMainScreen(element) {
   } else {
     element.requestPointerLock();
   }
+
+  backgroundMusic.play();
 }
 
 /*
@@ -107,7 +109,7 @@ function initPointerLock() {
     }, false);
 
   } else {
-      instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
+    instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API';
   }
 
   // Crea un cannon body, el cual será del jugador
@@ -241,7 +243,7 @@ function initCannon() {
   - canvas: Canvas de HTML en el cual se estará dibujando
 */
 function createScene(canvas) {
-  loadModels().then(() => {
+  loadModels().then(async () => {
     initCannon();
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
     renderer.shadowMap.enabled = true;
@@ -253,6 +255,11 @@ function createScene(canvas) {
     window.addEventListener('resize', onWindowResize, false);
 
     camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 1, 1000);
+    listener = new THREE.AudioListener();
+    camera.add( listener );
+    backgroundMusic = new THREE.Audio( listener );
+
+    await loadSounds();
 
     let scene = createGameScene();
     gameScenes.push(scene);
