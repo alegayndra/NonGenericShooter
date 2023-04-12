@@ -87,11 +87,12 @@ body {
 	
 }
 #clickMe {
-	position: absolute;
-	display: block;
 	z-index: 100;
-	left: 19%;
-	top: 70%;
+	position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
 	animation: blinker 1s linear infinite;
 }
 
