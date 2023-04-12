@@ -85,6 +85,7 @@ class Enemy extends Entity {
   */
   updateDirection() {
     this.direction.lookAt(actualScene.player.controls.getObject().position);
+    this.direction.direction.y = 0.1;
     this.mesh.lookAt(actualScene.player.controls.getObject().position);
 
     this.cannonBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0), this.mesh.rotation.x);
