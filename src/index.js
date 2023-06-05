@@ -124,11 +124,29 @@ function initPointerLock() {
   return controls;
 }
 
+function createLine() {
+  const material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+
+  const points = [];
+  points.push( new THREE.Vector3( - 10, 0, 0 ) );
+  points.push( new THREE.Vector3( 0, 10, 0 ) );
+
+
+  const geometry = new THREE.BufferGeometry().setFromPoints( points );
+
+  const line = new THREE.Line( geometry, material );
+
+  line.position.y = 10
+
+  return line;
+}
+
 /*
     Crea una escena del juego
 */
 function createGameScene() {
   let scene = new THREE.Scene();
+  // scene.add(createLine())
   scene.background = new THREE.Color(0xffffff);
   scene.fog = new THREE.Fog(0xffffff, 0, 900);
   let gameScene = new GameScene(scene, initCannon(), 'prueba');
